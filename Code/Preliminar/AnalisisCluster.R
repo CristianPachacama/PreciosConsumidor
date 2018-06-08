@@ -18,7 +18,7 @@ dim(IPC)
 plot(IPC[,101:110])
 
 # Gráfico del IPC por Producto(Item)  ---------------------
-ind=1:6
+#ind=1:6
 
 graf_series = function(IPC,items,ind){
   
@@ -32,51 +32,58 @@ graf_series = function(IPC,items,ind){
 }
 
 # Analiis Cluster   ---------------------------------------
-
-# Matriz de Distancia
-metricasList = c("euclidean", "manhattan", "minkowski", 
-                 "infnorm", "ccor", "sts", "dtw", "keogh.lb", 
-                 "edr", "erp", "lcss", "fourier", "tquest", 
-                 "dissim", "acf", "pacf", "ar.lpc.ceps", 
-                 "ar.mah", "ar.mah.statistic", "ar.mah.pvalue", 
-                 "ar.pic", "cdm", "cid", "cor", "cort", "wav", 
-                 "int.per", "per", "mindist.sax", "ncd", "pred", 
-                 "spec.glk", "spec.isd", "spec.llr", "pdc", "frechet")
-matriz_dist = function(metrica=metricasList[1]){
+analisis_cluster = function(IPC,N,m){
   
-  D = matrix(data=rep(NA,116^2),nrow=116,ncol = 116)
-  for(i in 1:116){
-    for(j in 1:116){
-      if(i<j){
-        D[i,j]=TSDistances(IPC[,i],IPC[,j],distance = metrica)
-        D[j,i]=D[i,j]
-      }
-    }
-    D[i,i]=0
+  # Matriz de Distancia -----------------
+  metricasList = c("euclidean", "manhattan", "minkowski", 
+                   "infnorm", "ccor", "sts", "dtw", "keogh.lb", 
+                   "edr", "erp", "lcss", "fourier", "tquest", 
+                   "dissim", "acf", "pacf", "ar.lpc.ceps", 
+                   "ar.mah", "ar.mah.statistic", "ar.mah.pvalue", 
+                   "ar.pic", "cdm", "cid", "cor", "cort", "wav", 
+                   "int.per", "per", "mindist.sax", "ncd", "pred", 
+                   "spec.glk", "spec.isd", "spec.llr", "pdc", "frechet")
+  matriz_dist = function(metrica=metricasList[1]){
     
+    D = matrix(data=rep(NA,116^2),nrow=116,ncol = 116)
+    for(i in 1:116){
+      for(j in 1:116){
+        if(i<j){
+          D[i,j]=TSDistances(IPC[,i],IPC[,j],distance = metrica)
+          D[j,i]=D[i,j]
+        }
+      }
+      D[i,i]=0
+      
+    }
+    return(D)
   }
-  return(D)
-}
-
-
-D=matriz_dist(metricasList[2])
-
-
-nube = smacofSym(D)
-plot(nube)
-
-Clustering = function(D,N=5){
   
-  clus.fit = clara(D, k=N, samples = 50, stand=TRUE, pamLike = TRUE)
-  #plot(clus.fit)
-  cl =list()
-  for(i in 1:N){
-    cl[[i]] = which(clus.fit$clustering==i)
+  #m=1
+  D=matriz_dist(metricasList[m])
+  
+  #nube = smacofSym(D)
+  #plot(nube)
+  
+  #Clusterizacion CLARA ----------------------
+  Clustering = function(D,N=5){
+    
+    clus.fit = clara(D, k=N, samples = 50, stand=TRUE, pamLike = TRUE)
+    #plot(clus.fit)
+    cl =list()
+    for(i in 1:N){
+      cl[[i]] = which(clus.fit$clustering==i)
+    }
+    return(cl)
   }
-  return(cl)
+  
+  #N=7
+  cl = Clustering(D,N)
+  # Grafico de Series  ------------------------
+  for(i in 1:N){
+    print(graf_series(IPC,items,cl[[i]]))
+  }
+  
 }
 
-cl = Clustering(D,N=5)
-
-
-graf_series(IPC,items,cl[[3]])
+analisis_cluster(IPC,N=4,m=9)
