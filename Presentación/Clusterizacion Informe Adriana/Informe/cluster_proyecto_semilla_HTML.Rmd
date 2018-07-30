@@ -1,0 +1,899 @@
+---
+title: "Análisis de Series de Vazoes"
+author: "Cristian David Pachacama"
+date: "7 de noviembre de 2017"
+output:
+  html_document:
+    theme: spacelab
+    highlight: haddock
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+library(xts)
+library(TSclust)
+library(TSdist)
+library(smacof)
+library(factoextra)
+library(dygraphs)
+library(plotly)
+
+load('Vazoes_Profit.RData')
+
+knitr::opts_chunk$set(echo = FALSE,message=FALSE, warning=FALSE)
+
+```
+
+# Introducción
+
+En el presente documento presentamos un análisis Macro de las series de tiempo asociadas a las estaciones de `VAZOES`, para ello utilizaremos un conjunto de técnicas multivariantes como:
+
+- Escalonamiento Multidimensional
+- Análisis Clúster
+
+Mismas que detallamos más a continuación.
+
+## Escalonamiento Multidimensional (MDS)
+
+Es un conjunto de técnicas que permiten visualizar un conjunto de objetos en un espacio de dimensión $N$ ($N=2$ usualmente, y definida a priori), esto a partir de una matriz de disimilitud (similitud o distancia) entre dichos objetos.
+
+## Análisis Clúster
+
+Es un conjunto de técnicas que buscan agrupar un conjunto de objetos de tal manera que los miembros del mismo grupo (llamado clúster) sean lo más similares posibles, en algún sentido. 
+
+
+
+
+
+# Metodología
+
+Primero construimos la matriz de distacias entre las series de tiempo asociadas a los `VAZOES`, para ello escogemos una de las métricas definidas para series de tiempo. Luego, a partir de la matriz de distancias utilizamos la técnica de MDS clásica, a partir de ella se obtiene una nube de puntos (en dimensión $N=2$) donde cada punto representa a la serie de `VAZOES` de una estación.
+
+A partir de esta nube de puntos en dimensión $N=2$, usamos el Análisis Clúster  para crear grupos de puntos basandose en su cercanía (esta cercanía depende fundamentalmente de la métrica elegida).
+
+A continuación presentamos los resultados al haber seguido los puntos anteriores escogiendo una métrica específica en cada caso.
+
+
+# Resultados
+
+Con ayuda del software estadístico R y de sus paquetes `TSdist`,`TSclust` (usado para construir las matrices de distacias) y `smacof` (usado para ejecutar la técnica MDS), mostramos a continuación resultados correspondientes a considerar 9 métricas definidas para series de tiempo, a partir de cada una de ellas y usando MDS se obtiene una nube de puntos (etiquetados por un código que corresponde al código ONS de la estación correspondiente). Luego, formamos los grupos mediante el Análisis Cluster (jerárquico), y en este caso elegiremos el número de grupos con la ayuda de la función `fviz_nbclust()` del paquete `factoextra`, que halla el número óptimo de grupos. Cabe mencionar que los grupos se grafican de distintos colores, además se delimitan los grupos coloreando la envolvente convexa de cada grupo (delimitando así los grupos en regiones). Adicionalemte se muestra el Dendograma asociado a la creación de los grupos, y finalmente se grafica las series de tiempo de cada agrupación.  
+
+# Sección 1
+
+En esta sección mostramos resultados obtenidos al considerar métricas que consideran distancias "geométricas" entre las series.
+
+## Métrica Euclidea 
+
+Sean $(X_t)$, $(Y_t)$ dos series de tiempo, a valores en $\mathbb{R}$, con $t\in T$. Se definen entonces las siguientes métricas (distancias).
+
+\[
+d_{euc}(X_t,Y_t)=\sqrt{\sum_{t\in T}(x_t-y_t)^2}
+\]
+
+```{r Euclidea}
+D<-D_euc
+k_aux<-2
+
+#Cluster Óptimo   --------------
+map<-smacofSym(D)
+op<-fviz_nbclust(map$conf, kmeans, method = "silhouette")
+#op
+ggplotly(op)
+
+#Dendograma -------
+clus<-hclust(D)
+dn<-fviz_dend(clus, k = k_aux, # Cut in 5 groups
+          cex = 0.6, horiz=F,# label size
+          k_colors = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+          color_labels_by_k = TRUE, # color labels by groups
+          rect = TRUE # Add rectangle around groups
+)
+dn
+#ggplotly(dn)
+
+grup <- cutree(clus, k = k_aux)
+
+#Nube de puntos ---------
+p<-fviz_cluster(list(data = map$conf, cluster = grup),labels_cex=0.3,
+             palette = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+             ellipse.type = "convex", # Concentration ellipse
+             repel = FALSE, # Avoid label overplotting (slow)
+             show.clust.cent = FALSE, ggtheme = theme_minimal())
+
+#p
+ggplotly(p)
+
+
+# -------------------------------------------------
+excl<-which(is.na(vazoes_code$Latitud))
+D1<-as.numeric(map$conf[,'D1']);#D1<-D1[-excl]
+D2<-as.numeric(map$conf[,'D2']);#D2<-D2[-excl]
+
+BDD_profit<-data.frame(Nombre_ST = paste0('VAZOES(',vazoes_code$Estacion,')'),
+                       Estacion=vazoes_code$Estacion,
+                       Codigo_ONS=vazoes_code$Codigo_ONS,
+                       Latitud=vazoes_code$Latitud,
+                       Longitud=vazoes_code$Longitud,
+                       D1, D2, Cluster=as.factor(as.character(grup))
+)
+
+#BDD_profit<-BDD_profit[-excl,]
+
+# Grafico de Series por Cluster ---------
+est_cluster1<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==1])
+est_cluster2<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==2])
+
+aux_vaz_dy<-vazoes_profit_ts
+names(aux_vaz_dy)<-names(vazoes_profit)[-1]
+
+#Series Cluster1
+
+dygraph(aux_vaz_dy[,est_cluster1[1:5]], main = "Series del Cluster 1",group = 'euclideo')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+
+#Series Cluster2
+dygraph(aux_vaz_dy[,est_cluster2[1:5]], main = "Series del Cluster 2",group = 'euclideo')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+
+
+```
+
+A continuación se muestra una tabla que contiene el Nombre con el que se encuentra la serie de tiempo en la Base de Datos del Proyecto, el Nombre de la Estación en la que se midió (Vazoe), el Código ONS de la Estación, las coordenadas Geográficas, las coordenadas obtenidas del MDS (nube de puntos), y finalmente el Cluster al que pertenece la serie:
+
+```{r}
+BDD_profit
+```
+
+## Distancia Manhattan
+
+\[
+d_{manh}(X_t,Y_t)=\sum_{t\in T}|x_t-y_t|
+\]
+
+```{r Manhatan}
+D<-D_manh
+k_aux<-2
+
+#Cluster Óptimo   --------------
+map<-smacofSym(D)
+op<-fviz_nbclust(map$conf, kmeans, method = "silhouette")
+#op
+ggplotly(op)
+
+#Dendograma -------
+clus<-hclust(D)
+dn<-fviz_dend(clus, k = k_aux, # Cut in 5 groups
+          cex = 0.6, horiz=F,# label size
+          k_colors = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+          color_labels_by_k = TRUE, # color labels by groups
+          rect = TRUE # Add rectangle around groups
+)
+dn
+#ggplotly(dn)
+
+grup <- cutree(clus, k = k_aux)
+
+#Nube de puntos ---------
+p<-fviz_cluster(list(data = map$conf, cluster = grup),labels_cex=0.3,
+             palette = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+             ellipse.type = "convex", # Concentration ellipse
+             repel = FALSE, # Avoid label overplotting (slow)
+             show.clust.cent = FALSE, ggtheme = theme_minimal())
+
+#p
+ggplotly(p)
+
+
+# -------------------------------------------------
+excl<-which(is.na(vazoes_code$Latitud))
+D1<-as.numeric(map$conf[,'D1']);#D1<-D1[-excl]
+D2<-as.numeric(map$conf[,'D2']);#D2<-D2[-excl]
+
+BDD_profit<-data.frame(Nombre_ST = paste0('VAZOES(',vazoes_code$Estacion,')'),
+                       Estacion=vazoes_code$Estacion,
+                       Codigo_ONS=vazoes_code$Codigo_ONS,
+                       Latitud=vazoes_code$Latitud,
+                       Longitud=vazoes_code$Longitud,
+                       D1, D2, Cluster=as.factor(as.character(grup))
+)
+
+#BDD_profit<-BDD_profit[-excl,]
+
+# Grafico de Series por Cluster ---------
+est_cluster1<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==1])
+est_cluster2<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==2])
+
+aux_vaz_dy<-vazoes_profit_ts
+names(aux_vaz_dy)<-names(vazoes_profit)[-1]
+
+#Series Cluster1
+
+dygraph(aux_vaz_dy[,est_cluster1[1:5]], main = "Series del Cluster 1",group = 'manhat')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+
+#Series Cluster2
+dygraph(aux_vaz_dy[,est_cluster2[1:5]], main = "Series del Cluster 2",group = 'manhat')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+
+```
+
+A continuación se muestra una tabla que contiene el Nombre con el que se encuentra la serie de tiempo en la Base de Datos del Proyecto, el Nombre de la Estación en la que se midió (Vazoe), el Código ONS de la Estación, las coordenadas Geográficas, las coordenadas obtenidas del MDS (nube de puntos), y finalmente el Cluster al que pertenece la serie:
+
+```{r}
+BDD_profit
+```
+
+## Métrica de Minkowski
+
+\[
+d_{mink}(X_t,Y_t)=\sqrt[p]{\sum_{t\in T}(x_t-y_t)^p}
+\]
+
+```{r Minkowski}
+D<-D_mink
+k_aux<-2
+
+#Cluster Óptimo   --------------
+map<-smacofSym(D)
+op<-fviz_nbclust(map$conf, kmeans, method = "silhouette")
+#op
+ggplotly(op)
+
+#Dendograma -------
+clus<-hclust(D)
+dn<-fviz_dend(clus, k = k_aux, # Cut in 5 groups
+          cex = 0.6, horiz=F,# label size
+          k_colors = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+          color_labels_by_k = TRUE, # color labels by groups
+          rect = TRUE # Add rectangle around groups
+)
+dn
+#ggplotly(dn)
+
+grup <- cutree(clus, k = k_aux)
+
+#Nube de puntos ---------
+p<-fviz_cluster(list(data = map$conf, cluster = grup),labels_cex=0.3,
+             palette = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+             ellipse.type = "convex", # Concentration ellipse
+             repel = FALSE, # Avoid label overplotting (slow)
+             show.clust.cent = FALSE, ggtheme = theme_minimal())
+
+#p
+ggplotly(p)
+
+
+# -------------------------------------------------
+excl<-which(is.na(vazoes_code$Latitud))
+D1<-as.numeric(map$conf[,'D1']);#D1<-D1[-excl]
+D2<-as.numeric(map$conf[,'D2']);#D2<-D2[-excl]
+
+BDD_profit<-data.frame(Nombre_ST = paste0('VAZOES(',vazoes_code$Estacion,')'),
+                       Estacion=vazoes_code$Estacion,
+                       Codigo_ONS=vazoes_code$Codigo_ONS,
+                       Latitud=vazoes_code$Latitud,
+                       Longitud=vazoes_code$Longitud,
+                       D1, D2, Cluster=as.factor(as.character(grup))
+)
+
+#BDD_profit<-BDD_profit[-excl,]
+
+# Grafico de Series por Cluster ---------
+est_cluster1<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==1])
+est_cluster2<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==2])
+
+aux_vaz_dy<-vazoes_profit_ts
+names(aux_vaz_dy)<-names(vazoes_profit)[-1]
+
+#Series Cluster1
+
+dygraph(aux_vaz_dy[,est_cluster1[1:5]], main = "Series del Cluster 1",group = 'minkows')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+
+#Series Cluster2
+dygraph(aux_vaz_dy[,est_cluster2[1:5]], main = "Series del Cluster 2",group = 'minkows')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+
+
+```
+
+A continuación se muestra una tabla que contiene el Nombre con el que se encuentra la serie de tiempo en la Base de Datos del Proyecto, el Nombre de la Estación en la que se midió (Vazoe), el Código ONS de la Estación, las coordenadas Geográficas, las coordenadas obtenidas del MDS (nube de puntos), y finalmente el Cluster al que pertenece la serie:
+
+```{r}
+BDD_profit
+```
+
+## Norma Infinito
+
+\[
+d_{inf}(X_t,Y_t)=\underset{t\in T}{\max} |x_t-y_t|
+\]
+
+```{r Infinito}
+D<-D_ifnrm
+k_aux<-2
+
+#Cluster Óptimo   --------------
+map<-smacofSym(D)
+op<-fviz_nbclust(map$conf, kmeans, method = "silhouette")
+#op
+ggplotly(op)
+
+#Dendograma -------
+clus<-hclust(D)
+dn<-fviz_dend(clus, k = k_aux, # Cut in 5 groups
+          cex = 0.6, horiz=F,# label size
+          k_colors = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+          color_labels_by_k = TRUE, # color labels by groups
+          rect = TRUE # Add rectangle around groups
+)
+dn
+#ggplotly(dn)
+
+grup <- cutree(clus, k = k_aux)
+
+#Nube de puntos ---------
+p<-fviz_cluster(list(data = map$conf, cluster = grup),labels_cex=0.3,
+             palette = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+             ellipse.type = "convex", # Concentration ellipse
+             repel = FALSE, # Avoid label overplotting (slow)
+             show.clust.cent = FALSE, ggtheme = theme_minimal())
+
+#p
+ggplotly(p)
+
+
+# -------------------------------------------------
+excl<-which(is.na(vazoes_code$Latitud))
+D1<-as.numeric(map$conf[,'D1']);#D1<-D1[-excl]
+D2<-as.numeric(map$conf[,'D2']);#D2<-D2[-excl]
+
+BDD_profit<-data.frame(Nombre_ST = paste0('VAZOES(',vazoes_code$Estacion,')'),
+                       Estacion=vazoes_code$Estacion,
+                       Codigo_ONS=vazoes_code$Codigo_ONS,
+                       Latitud=vazoes_code$Latitud,
+                       Longitud=vazoes_code$Longitud,
+                       D1, D2, Cluster=as.factor(as.character(grup))
+)
+
+#BDD_profit<-BDD_profit[-excl,]
+
+# Grafico de Series por Cluster ---------
+est_cluster1<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==1])
+est_cluster2<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==2])
+
+aux_vaz_dy<-vazoes_profit_ts
+names(aux_vaz_dy)<-names(vazoes_profit)[-1]
+
+#Series Cluster1
+
+dygraph(aux_vaz_dy[,est_cluster1[1:5]], main = "Series del Cluster 1",group = 'infinito')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+
+#Series Cluster2
+dygraph(aux_vaz_dy[,est_cluster2[1:5]], main = "Series del Cluster 2",group = 'infinito')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+
+
+
+```
+
+A continuación se muestra una tabla que contiene el Nombre con el que se encuentra la serie de tiempo en la Base de Datos del Proyecto, el Nombre de la Estación en la que se midió (Vazoe), el Código ONS de la Estación, las coordenadas Geográficas, las coordenadas obtenidas del MDS (nube de puntos), y finalmente el Cluster al que pertenece la serie:
+
+```{r}
+BDD_profit
+```
+
+
+## Distancia de Fourier
+
+Se calcula como la distancia euclidiana entre los primeros $n$ coeficientes de Fourier de las series $x$ e $y$. Las series deben tener la misma longitud. Además, $n$ no debería ser mayor que la longitud de la serie.
+
+```{r Fourier}
+D<-D_fourier
+k_aux<-2
+
+#Cluster Óptimo   --------------
+map<-smacofSym(D)
+op<-fviz_nbclust(map$conf, kmeans, method = "silhouette")
+#op
+ggplotly(op)
+
+#Dendograma -------
+clus<-hclust(D)
+dn<-fviz_dend(clus, k = k_aux, # Cut in 5 groups
+          cex = 0.6, horiz=F,# label size
+          k_colors = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+          color_labels_by_k = TRUE, # color labels by groups
+          rect = TRUE # Add rectangle around groups
+)
+dn
+#ggplotly(dn)
+
+grup <- cutree(clus, k = k_aux)
+
+#Nube de puntos ---------
+p<-fviz_cluster(list(data = map$conf, cluster = grup),labels_cex=0.3,
+             palette = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+             ellipse.type = "convex", # Concentration ellipse
+             repel = FALSE, # Avoid label overplotting (slow)
+             show.clust.cent = FALSE, ggtheme = theme_minimal())
+
+#p
+ggplotly(p)
+
+
+# -------------------------------------------------
+excl<-which(is.na(vazoes_code$Latitud))
+D1<-as.numeric(map$conf[,'D1']);#D1<-D1[-excl]
+D2<-as.numeric(map$conf[,'D2']);#D2<-D2[-excl]
+
+BDD_profit<-data.frame(Nombre_ST = paste0('VAZOES(',vazoes_code$Estacion,')'),
+                       Estacion=vazoes_code$Estacion,
+                       Codigo_ONS=vazoes_code$Codigo_ONS,
+                       Latitud=vazoes_code$Latitud,
+                       Longitud=vazoes_code$Longitud,
+                       D1, D2, Cluster=as.factor(as.character(grup))
+)
+
+#BDD_profit<-BDD_profit[-excl,]
+
+# Grafico de Series por Cluster ---------
+est_cluster1<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==1])
+est_cluster2<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==2])
+
+aux_vaz_dy<-vazoes_profit_ts
+names(aux_vaz_dy)<-names(vazoes_profit)[-1]
+
+#Series Cluster1
+
+dygraph(aux_vaz_dy[,est_cluster1[1:5]], main = "Series del Cluster 1",group = 'fourier')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+
+#Series Cluster2
+dygraph(aux_vaz_dy[,est_cluster2[1:5]], main = "Series del Cluster 2",group = 'fourier')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+
+```
+
+
+A continuación se muestra una tabla que contiene el Nombre con el que se encuentra la serie de tiempo en la Base de Datos del Proyecto, el Nombre de la Estación en la que se midió (Vazoe), el Código ONS de la Estación, las coordenadas Geográficas, las coordenadas obtenidas del MDS (nube de puntos), y finalmente el Cluster al que pertenece la serie:
+
+```{r}
+BDD_profit
+```
+
+
+## Disimilitud CORT
+
+Índice de disimilitud que combina la correlación temporal y los comportamientos de valores sin procesar.
+
+\[
+d_{cort}(X_t,Y_t)=\Phi[CORT(x,y)]\delta(x,y)
+\]
+
+Donde:
+
+\[
+CORT(x,y)=\frac{\sum_{t \in T}(x_{t+1}-x_t)(y_{t+1}-y_t)}{\sqrt{\sum_{t \in T}(x_{t+1}-x_t)^2} \sqrt{\sum_{t \in T} (y_{t+1}-y_t)^2 } }
+\]
+
+\[ 
+\Phi(u)=\frac{2}{1+e^{ku}}
+\]
+
+Y $\delta(x,y)$ es una medida de disimilitud entre los elementos de una misma serie.
+
+```{r Cort}
+D<-D_cort
+k_aux<-2
+
+#Cluster Óptimo   --------------
+map<-smacofSym(D)
+op<-fviz_nbclust(map$conf, kmeans, method = "silhouette")
+#op
+ggplotly(op)
+
+#Dendograma -------
+clus<-hclust(D)
+dn<-fviz_dend(clus, k = k_aux, # Cut in 5 groups
+          cex = 0.6, horiz=F,# label size
+          k_colors = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+          color_labels_by_k = TRUE, # color labels by groups
+          rect = TRUE # Add rectangle around groups
+)
+dn
+#ggplotly(dn)
+
+grup <- cutree(clus, k = k_aux)
+
+#Nube de puntos ---------
+p<-fviz_cluster(list(data = map$conf, cluster = grup),labels_cex=0.3,
+             palette = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+             ellipse.type = "convex", # Concentration ellipse
+             repel = FALSE, # Avoid label overplotting (slow)
+             show.clust.cent = FALSE, ggtheme = theme_minimal())
+
+#p
+ggplotly(p)
+
+
+# -------------------------------------------------
+excl<-which(is.na(vazoes_code$Latitud))
+D1<-as.numeric(map$conf[,'D1']);#D1<-D1[-excl]
+D2<-as.numeric(map$conf[,'D2']);#D2<-D2[-excl]
+
+BDD_profit<-data.frame(Nombre_ST = paste0('VAZOES(',vazoes_code$Estacion,')'),
+                       Estacion=vazoes_code$Estacion,
+                       Codigo_ONS=vazoes_code$Codigo_ONS,
+                       Latitud=vazoes_code$Latitud,
+                       Longitud=vazoes_code$Longitud,
+                       D1, D2, Cluster=as.factor(as.character(grup))
+)
+
+#BDD_profit<-BDD_profit[-excl,]
+
+# Grafico de Series por Cluster ---------
+est_cluster1<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==1])
+est_cluster2<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==2])
+
+aux_vaz_dy<-vazoes_profit_ts
+names(aux_vaz_dy)<-names(vazoes_profit)[-1]
+
+#Series Cluster1
+
+dygraph(aux_vaz_dy[,est_cluster1[1:5]], main = "Series del Cluster 1",group = 'cort')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+
+#Series Cluster2
+dygraph(aux_vaz_dy[,est_cluster2[1:5]], main = "Series del Cluster 2",group = 'cort')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+
+```
+
+A continuación se muestra una tabla que contiene el Nombre con el que se encuentra la serie de tiempo en la Base de Datos del Proyecto, el Nombre de la Estación en la que se midió (Vazoe), el Código ONS de la Estación, las coordenadas Geográficas, las coordenadas obtenidas del MDS (nube de puntos), y finalmente el Cluster al que pertenece la serie:
+
+```{r}
+BDD_profit
+```
+
+## Observacion 1
+
+Como se puede observar todas estas métricas desenvocan en resultados parecidos en cuanto al número de grupos que se forman con las series (2 en todos los casos), y además las nubes de puntos (asociados a las estaciones de Vazoes) son bastante similares en todos los casos.
+
+
+
+
+
+
+
+# Sección 2
+
+En esta sección mostramos resultados obtenidos al considerar métricas que consideran la correlación en y entre las series.
+
+## Disimilitud basada en la Autocorrelación
+
+\[
+d_{acf}(X_t,Y_t)=\sqrt{(\hat\rho_x-\hat\rho_y)^t\Omega(\hat\rho_x-\hat\rho_y)}
+\]
+
+donde $\hat\rho_x$ es el vector con los coeficientes de autocorrelación.
+
+```{r Autocorrelacion}
+D<-D_acf
+k_aux<-4
+
+#Cluster Óptimo   --------------
+map<-smacofSym(D)
+op<-fviz_nbclust(map$conf, kmeans, method = "silhouette")
+#op
+ggplotly(op)
+
+#Dendograma -------
+clus<-hclust(D)
+dn<-fviz_dend(clus, k = k_aux, # Cut in 5 groups
+          cex = 0.6, horiz=F,# label size
+          k_colors = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+          color_labels_by_k = TRUE, # color labels by groups
+          rect = TRUE # Add rectangle around groups
+)
+dn
+#ggplotly(dn)
+
+grup <- cutree(clus, k = k_aux)
+
+#Nube de puntos ---------
+p<-fviz_cluster(list(data = map$conf, cluster = grup),labels_cex=0.3,
+             palette = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+             ellipse.type = "convex", # Concentration ellipse
+             repel = FALSE, # Avoid label overplotting (slow)
+             show.clust.cent = FALSE, ggtheme = theme_minimal())
+
+#p
+ggplotly(p)
+
+
+# -------------------------------------------------
+excl<-which(is.na(vazoes_code$Latitud))
+D1<-as.numeric(map$conf[,'D1']);#D1<-D1[-excl]
+D2<-as.numeric(map$conf[,'D2']);#D2<-D2[-excl]
+
+BDD_profit<-data.frame(Nombre_ST = paste0('VAZOES(',vazoes_code$Estacion,')'),
+                       Estacion=vazoes_code$Estacion,
+                       Codigo_ONS=vazoes_code$Codigo_ONS,
+                       Latitud=vazoes_code$Latitud,
+                       Longitud=vazoes_code$Longitud,
+                       D1, D2, Cluster=as.factor(as.character(grup))
+)
+
+#BDD_profit<-BDD_profit[-excl,]
+
+# Grafico de Series por Cluster ---------
+est_cluster1<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==1])
+est_cluster2<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==2])
+est_cluster3<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==3])
+est_cluster4<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==4])
+
+aux_vaz_dy<-vazoes_profit_ts
+names(aux_vaz_dy)<-names(vazoes_profit)[-1]
+
+
+#Series Cluster1
+dygraph(aux_vaz_dy[,est_cluster1[1:5]], main = "Series del Cluster 1",group = 'autocorrela')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+#Series Cluster2
+dygraph(aux_vaz_dy[,est_cluster2[1:5]], main = "Series del Cluster 2",group = 'autocorrela')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+#Series Cluster2
+dygraph(aux_vaz_dy[,est_cluster3[1:5]], main = "Series del Cluster 3",group = 'autocorrela')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+#Series Cluster2
+dygraph(aux_vaz_dy[,est_cluster4[1:5]], main = "Series del Cluster 4",group = 'autocorrela')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+
+```
+
+A continuación se muestra una tabla que contiene el Nombre con el que se encuentra la serie de tiempo en la Base de Datos del Proyecto, el Nombre de la Estación en la que se midió (Vazoe), el Código ONS de la Estación, las coordenadas Geográficas, las coordenadas obtenidas del MDS (nube de puntos), y finalmente el Cluster al que pertenece la serie:
+
+```{r}
+BDD_profit
+```
+
+## Disimilitud basada en Correlación
+
+\[
+d_{cor}(X_t,Y_t)=\sqrt{\left( \frac{1-\rho}{1+\rho} \right)^\beta}
+\]
+
+donde $\rho$ es el coeficiente de correlación de Pearson entre las series, y $\beta$ se define a priori.
+
+```{r Correlacion}
+D<-D_cor
+k_aux<-4
+
+#Cluster Óptimo   --------------
+map<-smacofSym(D)
+op<-fviz_nbclust(map$conf, kmeans, method = "silhouette")
+#op
+ggplotly(op)
+
+#Dendograma -------
+clus<-hclust(D)
+dn<-fviz_dend(clus, k = k_aux, # Cut in 5 groups
+          cex = 0.6, horiz=F,# label size
+          k_colors = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+          color_labels_by_k = TRUE, # color labels by groups
+          rect = TRUE # Add rectangle around groups
+)
+dn
+#ggplotly(dn)
+
+grup <- cutree(clus, k = k_aux)
+
+#Nube de puntos ---------
+p<-fviz_cluster(list(data = map$conf, cluster = grup),labels_cex=0.3,
+             palette = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+             ellipse.type = "convex", # Concentration ellipse
+             repel = FALSE, # Avoid label overplotting (slow)
+             show.clust.cent = FALSE, ggtheme = theme_minimal())
+
+#p
+ggplotly(p)
+
+
+# -------------------------------------------------
+excl<-which(is.na(vazoes_code$Latitud))
+D1<-as.numeric(map$conf[,'D1']);#D1<-D1[-excl]
+D2<-as.numeric(map$conf[,'D2']);#D2<-D2[-excl]
+
+BDD_profit<-data.frame(Nombre_ST = paste0('VAZOES(',vazoes_code$Estacion,')'),
+                       Estacion=vazoes_code$Estacion,
+                       Codigo_ONS=vazoes_code$Codigo_ONS,
+                       Latitud=vazoes_code$Latitud,
+                       Longitud=vazoes_code$Longitud,
+                       D1, D2, Cluster=as.factor(as.character(grup))
+)
+
+#BDD_profit<-BDD_profit[-excl,]
+
+# Grafico de Series por Cluster ---------
+est_cluster1<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==1])
+est_cluster2<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==2])
+est_cluster3<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==3])
+est_cluster4<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==4])
+
+aux_vaz_dy<-vazoes_profit_ts
+names(aux_vaz_dy)<-names(vazoes_profit)[-1]
+
+
+#Series Cluster1
+dygraph(aux_vaz_dy[,est_cluster1[1:5]], main = "Series del Cluster 1",group = 'autocorrela')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+#Series Cluster2
+dygraph(aux_vaz_dy[,est_cluster2[1:5]], main = "Series del Cluster 2",group = 'autocorrela')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+#Series Cluster2
+dygraph(aux_vaz_dy[,est_cluster3[1:5]], main = "Series del Cluster 3",group = 'autocorrela')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+#Series Cluster2
+dygraph(aux_vaz_dy[,est_cluster4[1:5]], main = "Series del Cluster 4",group = 'autocorrela')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+
+```
+
+A continuación se muestra una tabla que contiene el Nombre con el que se encuentra la serie de tiempo en la Base de Datos del Proyecto, el Nombre de la Estación en la que se midió (Vazoe), el Código ONS de la Estación, las coordenadas Geográficas, las coordenadas obtenidas del MDS (nube de puntos), y finalmente el Cluster al que pertenece la serie:
+
+```{r}
+BDD_profit
+```
+
+## Distacia basada en la Correlación Cruzada
+
+\[
+d_{ccor}(X_t,Y_t)=\sqrt{\frac{(1-CC(x_t,y_t,0))^2}{\sum_{k}(1-CC(x_t,y_t,k))^2}}
+\]
+
+Donde $CC(x_t,y_t,k)$ es la función de correlación cruzada con $k$ retardos.
+
+```{r Correlacion Cruzada}
+D<-D_ccor
+k_aux<-4
+
+#Cluster Óptimo   --------------
+map<-smacofSym(D)
+op<-fviz_nbclust(map$conf, kmeans, method = "silhouette")
+#op
+ggplotly(op)
+
+#Dendograma -------
+clus<-hclust(D)
+dn<-fviz_dend(clus, k = k_aux, # Cut in 5 groups
+          cex = 0.6, horiz=F,# label size
+          k_colors = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+          color_labels_by_k = TRUE, # color labels by groups
+          rect = TRUE # Add rectangle around groups
+)
+dn
+#ggplotly(dn)
+
+grup <- cutree(clus, k = k_aux)
+
+#Nube de puntos ---------
+p<-fviz_cluster(list(data = map$conf, cluster = grup),labels_cex=0.3,
+             palette = c("#6C3483", "#00AFBB", "#E7B800", "#FC4E07", "#00FF00","#283747"),
+             ellipse.type = "convex", # Concentration ellipse
+             repel = FALSE, # Avoid label overplotting (slow)
+             show.clust.cent = FALSE, ggtheme = theme_minimal())
+
+#p
+ggplotly(p)
+
+
+# -------------------------------------------------
+excl<-which(is.na(vazoes_code$Latitud))
+D1<-as.numeric(map$conf[,'D1']);#D1<-D1[-excl]
+D2<-as.numeric(map$conf[,'D2']);#D2<-D2[-excl]
+
+BDD_profit<-data.frame(Nombre_ST = paste0('VAZOES(',vazoes_code$Estacion,')'),
+                       Estacion=vazoes_code$Estacion,
+                       Codigo_ONS=vazoes_code$Codigo_ONS,
+                       Latitud=vazoes_code$Latitud,
+                       Longitud=vazoes_code$Longitud,
+                       D1, D2, Cluster=as.factor(as.character(grup))
+)
+
+#BDD_profit<-BDD_profit[-excl,]
+
+# Grafico de Series por Cluster ---------
+est_cluster1<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==1])
+est_cluster2<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==2])
+est_cluster3<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==3])
+est_cluster4<-as.character(BDD_profit$Nombre_ST[BDD_profit$Cluster==4])
+
+aux_vaz_dy<-vazoes_profit_ts
+names(aux_vaz_dy)<-names(vazoes_profit)[-1]
+
+
+#Series Cluster1
+dygraph(aux_vaz_dy[,est_cluster1[1:5]], main = "Series del Cluster 1",group = 'autocorrela')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+#Series Cluster2
+dygraph(aux_vaz_dy[,est_cluster2[1:5]], main = "Series del Cluster 2",group = 'autocorrela')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+#Series Cluster2
+dygraph(aux_vaz_dy[,est_cluster3[1:5]], main = "Series del Cluster 3",group = 'autocorrela')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+#Series Cluster2
+dygraph(aux_vaz_dy[,est_cluster4[1:5]], main = "Series del Cluster 4",group = 'autocorrela')%>%
+  dyRangeSelector(dateWindow = c('2010-01-01','2015-12-31'))%>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3)%>%
+  dyLegend(show='always')
+
+```
+
+A continuación se muestra una tabla que contiene el Nombre con el que se encuentra la serie de tiempo en la Base de Datos del Proyecto, el Nombre de la Estación en la que se midió (Vazoe), el Código ONS de la Estación, las coordenadas Geográficas, las coordenadas obtenidas del MDS (nube de puntos), y finalmente el Cluster al que pertenece la serie:
+
+```{r}
+BDD_profit
+```
+
+
+## Observacion 2
+Por la naturaleza de los datos, puede que la métrica más adecuada para analizar la similitud entre las series de vazoes, sea la Distancia basada en la Correlación Cruzada, ya que asume que dos puntos son próximos (cercanos) si presentan una alta Correlación Cruzada, esto a su vez se traduce en la posible existencia de una relación de dependencia entre todo par de series que se encuentren cercanas.
+
+
+## Bibliografía
+
+- Pablo Montero & José A. Vilar (2014). TSclust: An R Package for Time Series Clustering.
+- Borg, I., & Groenen, P. J. (2005). Modern multidimensional scaling: Theory and applications. Springer Science & Business Media.
+
+
+
+
+

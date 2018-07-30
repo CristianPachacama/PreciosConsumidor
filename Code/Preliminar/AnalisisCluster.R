@@ -5,7 +5,8 @@ library(TSclust)
 library(smacof)
 library(dygraphs)
 
-
+library(readxl)
+IPChistL = read_excel("Data/Series Largas/ipc_ind_nac.xls",skip = 4)
 IPChist <- read_csv("Data/IPChistorico.csv")
 
 IPC = t(as.matrix(IPChist[,c(-1,-2)]))
@@ -58,8 +59,9 @@ analisis_cluster = function(IPC,N,m){
     }
     return(D)
   }
-  
-  #m=1
+  #Metrica de Atocorrelacion: 15,16
+  #Metricas ARMA: 17 - 21
+  #m=17  
   D=matriz_dist(metricasList[m])
   
   #nube = smacofSym(D)
