@@ -1,18 +1,3 @@
-#Descarga de Paquetes ================================
-# (Solo compilar esta sección la primera vez)
-# install.packages('shinythemes',dependencies = T)
-# install.packages('shinydashboard',dependencies = T)
-# install.packages('markdown',dependencies = T)
-# install.packages('leaflet',dependencies = T)
-# install.packages('htmltools',dependencies = T)
-# install.packages('rgdal',dependencies = T)
-# install.packages('DT',dependencies = T)
-# install.packages('plotly',dependencies = T)
-# install.packages('ggplot2',dependencies = T)
-# install.packages('dygraphs',dependencies = T)
-# install.packages('seasonal',dependencies = T)
-# install.packages('stlplus',dependencies = T)
-
 #### install.packages('xts',dependencies = T) ####
 #Correccion de Version en paquete 'xts' ===============
 # install.packages('devtools', dependencies = T)
@@ -29,6 +14,7 @@ library(shinythemes)
 #library(htmltools)
 #library(rgdal)
 #Tablas
+library(readxl)
 library(readr)
 library(DT)
 library(dplyr)
@@ -44,26 +30,46 @@ source("Code/AnalisisCluster.R",local = TRUE)
 source("Code/GraficoCluster.R",local = TRUE)
 #>> Carga de Datos -----------------------------------------------
 load("Data/DatosAux.RData")
-IPChist = read_csv("Data/IPChistorico.csv")
-#Transponer Datos
-IPC = t(as.matrix(IPChist[,c(-1,-2)]))
-IPC = ts(IPC, start = c(2005, 1),frequency = 12)
-#Series Diferenciadas
-IPCx = as.matrix(diff(IPC))
-#Modificación de IPC (Normalización /IPC General)
-IPCx2= IPChist
-for(i in 2:dim(IPChist)[1]){
-  IPCx2[i,-(1:2)] = IPCx2[i,-(1:2)]/IPCx2[1,-(1:2)]
-}
-IPCx2 = t(as.matrix(IPCx2[,c(-1,-2)]))
-#Extras
-Items = IPChist$ITEM
-items = as.vector(abbreviate(IPChist$ITEM))
-colnames(IPC) = items
 
-#Data Productos
-names(IPChist)[2] = "Producto"
+IPChist = read_csv("Data/IPChistorico.csv")
 IPCprod = cbind(Productos,IPChist[,-c(2:158)])
+
+#-------------------------------------------
+# IPChist = read_csv("Data/IPChistorico.csv")
+# #Datos por Provincia
+# library(readxl)
+# IPCprov = read_excel("Data/ipc_ind_nac.xls",sheet = 1,skip = 4)
+# names(IPCprov)=c('Orden','Producto')
+# #Transponer Datos
+# IPC = t(as.matrix(IPChist[,c(-1,-2)]))
+# IPC = ts(IPC, start = c(2005, 1),frequency = 12)
+# #Variaciones Porcentuales del IPC
+# # IPCx = as.matrix(diff(IPC))
+# IPCx = diff(IPC)
+# # for(i in 1:dim(IPCx)[2]){
+# #   IPCx[,i] = IPCx[,i]/IPC[-1,i]
+# # }
+# #Modificación de IPC (Normalización /IPC General)
+# IPCx2= IPChist
+# for(i in 2:dim(IPChist)[1]){
+#   IPCx2[i,-(1:2)] = IPCx2[i,-(1:2)]/IPCx2[1,-(1:2)]
+# }
+# IPCx2 = t(as.matrix(IPCx2[,c(-1,-2)]))
+# IPCx2 = ts(IPCx2, start = c(2005, 1),frequency = 12)
+# #Extras
+# Items = IPChist$ITEM
+# items = as.vector(abbreviate(IPChist$ITEM))
+# 
+# colnames(IPC) = items
+# colnames(IPCx) = items
+# colnames(IPCx2) = items
+# #Data Productos
+# names(IPChist)[2] = "Producto"
+# IPCprod = cbind(Productos,IPChist[,-c(2:158)])
+
+#------------------------------------------------
+
+
 
 #Lista de Métricas
 metricasList = c("1.Euclidean distance"="euclidean", 
@@ -163,7 +169,7 @@ ui <- navbarPage(title = "Clustering IPC",
                                 asociadas a estos productos, para el análisis se consideraron 
                                 varias métricas, entre las que se destacan las que consideran la correlación 
                                 tanto temporal como entre distintas series.'),
-                              dataTableOutput("tabla_prod")
+                              fluidRow(dataTableOutput("tabla_prod"))
                               
                             )
                             
@@ -175,9 +181,9 @@ ui <- navbarPage(title = "Clustering IPC",
                  ),
                  
                  #INFORMACIÓN DE LA BASE DE DATOS ------------------------------
-                 tabPanel("Datos"
-                            
-                            ),
+                 # tabPanel("Datos"
+                 #            
+                 #            ),
                  
                  # ANALISIS MULTIVARIANTE DE SERIES ============================
                  tabPanel('Análisis',
@@ -186,20 +192,35 @@ ui <- navbarPage(title = "Clustering IPC",
                             # Panel Lateral -------------------------------
                             sidebarPanel(
                               h4('Cluster de Series de Tiempo'),
-                              p('Primero selecciona que series deseas Análizar.'),
+                              selectInput('nivel', 
+                                          label= 'Selecciona Nivel',
+                                          selected = 1,
+                                          choices=c('Nacional'=1,
+                                                    'Región Sierra'=2,
+                                                    'Región Costa'=3,
+                                                    'Guayaquil'=4,
+                                                    'Esmeraldas'=5,
+                                                    'Machala'=6,
+                                                    'Manta'=7,
+                                                    'Santo Domingo'=8,
+                                                    'Quito'=9,
+                                                    'Loja'=10,
+                                                    'Cuenca'=11,
+                                                    'Ambato'=12)),
+                              p('Ahora selecciona que series deseas Análizar (a partir de ella se realizará el Análisis Clúster).'),
                               selectInput('serie', 
                                           label= 'Selecciona Serie de Tiempo',
                                           selected = 'IPC',
                                           choices=c('IPC'='IPC',
-                                                    'IPC Normalizado (sobre IPC general)'='IPCx',
-                                                    'IPC Diferenciado'='IPCx2')),
+                                                    'IPC Deflactado (sobre IPC general)'='IPCx2',
+                                                    'Variación(%) IPC'='IPCx')),
                               p('Selecciona una de las Métricas definidas para series de tiempo.'),
                               selectInput('metrica', 
                                           label= 'Selecciona Métrica',
                                           selected = 'cort',
                                           metricasList),
                               p('Elige el número de clusters que quieres que se formen.'),
-                              sliderInput('clusters', label= 'Número de Clusters',min=2,max=20,value = 4),
+                              sliderInput('clusters', label= 'Número de Clusters',min=2,max=20,value = 20),
                               actionButton('clus_boton',label='Clusterizar',icon = icon('braille')),hr(),
                               #Panel Control Graficos
                               h4('Gráfico de Series'),
@@ -208,10 +229,10 @@ ui <- navbarPage(title = "Clustering IPC",
                                           label= 'Selecciona Serie de Tiempo',
                                           selected = 'IPC',
                                           choices=c('IPC'='IPC',
-                                                    'IPC Normalizado (sobre IPC general)'='IPCx',
-                                                    'IPC Diferenciado'='IPCx2')),
+                                                    'IPC Deflactado (sobre IPC general)'='IPCx2',
+                                                    'Variación(%) IPC'='IPCx')),
                               p('A continuación elija un Clúster, para graficar todas las series del mismo.'),
-                              numericInput(inputId = "grupo",label='Clúster',value = 1,min = 1,max=4)
+                              numericInput(inputId = "grupo",label='Clúster',value = 1,min = 1,max=20)
                             ),
                             # Panel Central ------------------------------------
                             mainPanel(
@@ -219,7 +240,8 @@ ui <- navbarPage(title = "Clustering IPC",
                               h4('Gráfico de las Series por Cluster'),
                               dygraphOutput('cluster_graf'),hr(),
                               h4('Tabla de Productos por Cluster'),
-                              fluidRow(dataTableOutput("cluster_table",width = "50%"))
+                              fluidRow(dataTableOutput("cluster_table"))
+                              # fluidRow()
                               
                             )
                           ),hr()
@@ -232,19 +254,91 @@ ui <- navbarPage(title = "Clustering IPC",
 # !!!!!!!!!!!!!!!!!!!!!!!!     SERVER      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # ========================================================================
 server <- function(input, output,session) {
-  #Actualizar Input (Grupo)
+  #Carga de Datos Segun Grupo (Nacional, ---------------------------------
+  # region sierra, costa, Guayaquil, etc)
+  
+  ipchist=eventReactive(input$clus_boton,{
+    IPChist=read_excel("Data/ipc_ind_nac.xls",sheet = as.numeric(input$nivel), skip = 4)
+    filas = dim(IPChist)[1]
+    IPChist=IPChist[-c(1,filas,filas-1),]
+    return(IPChist)
+  })
+  
+  #Abreviaturas de ITEMS (ProductosS)
+  itm = reactive({
+    IPChist=ipchist()
+    Items = as.data.frame(IPChist[,2])
+    items = as.vector(abbreviate(Items[,1]))
+    return(items)
+  })
+  
+  ipc=reactive({
+    
+    #Cargamos Datos según grupo
+    IPChist=ipchist()
+    #Transponer Datos
+    IPC = t(as.matrix(IPChist[,c(-1,-2)]))
+    IPC = ts(IPC, start = c(2005, 1),frequency = 12)
+
+    #Productos por abreviaturas ITEM
+    items = itm()
+    colnames(IPC) = items
+    
+    return(IPC)
+  })
+  
+  ipcx = reactive({
+    #Cargamos Datos según grupo
+    IPC=ipc()
+    #Variaciones Porcentuales del IPC
+    IPCx = diff(IPC)
+    for(i in 1:dim(IPCx)[2]){
+      IPCx[,i] = IPCx[,i]/IPC[-1,i]
+    }
+    #Productos por abreviaturas ITEM
+    items = itm()
+    colnames(IPCx) = items
+    
+    return(IPCx)
+  })
+  
+  ipcx2 = reactive({
+    #Cargamos Datos según grupo
+    IPChist=ipchist()
+    #Modificación de IPC (Normalización /IPC General)
+    IPCx2= IPChist
+    for(i in 2:dim(IPChist)[1]){
+      IPCx2[i,-(1:2)] = IPCx2[i,-(1:2)]/IPCx2[1,-(1:2)]
+    }
+    IPCx2 = t(as.matrix(IPCx2[,c(-1,-2)]))
+    IPCx2 = ts(IPCx2, start = c(2005, 1),frequency = 12)
+    #Productos por abreviaturas ITEM
+    items = itm()
+    colnames(IPCx2) = items
+    
+    return(IPCx2)
+  })
+  
+  #---------------------------------------------------------------------
+  
+  
+  
+  #Actualizar Input (Grupo)  -----------------------
   observe({
     updateNumericInput(session,inputId = "grupo",
-                       label='Clúster',value = 1,
+                       label='Clúster',#value = 1,
                        min = 1,max=input$clusters)
   })
-  #Tabla de Productos
+  #Tabla de Productos  -----------------------------
   output$tabla_prod = renderDataTable({
     IPCprod
   })
   
-  #Guardamos el Analsis Cluster en cl
+  #Guardamos el Analsis Cluster en cl --------------
   clust = eventReactive(input$clus_boton,{
+    #Cargamos Series
+    IPC= ipc();IPCx=ipcx();IPCx2=ipcx2();
+    #Analizamos 
     analisis = switch(input$serie,
       'IPC'={EstudioIPC(IPC, metricasList,
                         metrica = which(metricasList==input$metrica), 
@@ -260,9 +354,15 @@ server <- function(input, output,session) {
   })
   
   
-  #Mostramos Graficos de Series
+  #Mostramos Graficos de Series --------------------
   output$cluster_graf = renderDygraph({
+    #Datos de Abreviaturas
+    items=itm()
+    #Cargamos Series
+    IPC= ipc();IPCx=ipcx();IPCx2=ipcx2();
+    #Cargamos Datos de Clusterizacion
     cl=clust()
+    #Graficamos Según Serie
     grafico = switch(input$serie_graf,
                      'IPC'={graf_series(IPC,items,cl[[input$grupo]],input$metrica,cluster=input$grupo)},
                      'IPCx'={graf_series(IPCx,items,cl[[input$grupo]],input$metrica,cluster=input$grupo)},
@@ -272,7 +372,7 @@ server <- function(input, output,session) {
   })
 
   
-  # output$cluster_table
+  # output$cluster_table  --------------------------
   output$cluster_table = renderDataTable({
     cl=clust()
     IPCprod[cl[[input$grupo]],]
