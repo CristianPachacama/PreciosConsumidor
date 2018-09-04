@@ -42,7 +42,7 @@ mav = function(x,n=5){
 }
 
 
-mav(BDDts3[,2], n =24 )
+mav(BDDts3[,2], n =12 )
 
 
 
