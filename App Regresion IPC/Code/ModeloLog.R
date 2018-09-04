@@ -101,6 +101,7 @@ rangos3 = tabla[ind3,]
 ind4 = b<0 & abs(b)<1
 rangos4 = tabla[ind4,]
 
+rangos3
 rangos4
 
 write.csv(rangos3,file = "Analizado/Rango3.csv")
