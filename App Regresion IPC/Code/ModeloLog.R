@@ -8,38 +8,40 @@ IPChist = read_csv("Data/IPChistorico.csv")
 IPC = t(as.matrix(IPChist[,c(-1,-2)]))
 Items = IPChist$ITEM
 items = as.vector(abbreviate(IPChist$ITEM))
+
+ListItems = data.frame(Items,items)
 colnames(IPC) = items
 
 IPC = data.frame(Fecha=rownames(IPC),IPC)
 
 #Datos de GINI ---------------------------------------
-gini = as.data.frame(read_csv("Data/GINI.csv"))
-Gini = rep(NA, dim(IPChist)[2]-2)
-for(i in 3:dim(gini)[1]){
-  Gini[12*(i-3)+1] = gini[i,2] 
-}
-remove(i)
-Gini = data.frame(Fecha = names(IPChist)[-c(1,2)], GINI = Gini)
-
-#Interpolar datos NAs en Serie GINI
-
-Gini= Gini %>%  mutate(GiniAp = na.approx(GINI,na.rm = F))
-ind = min(which(is.na(Gini$GiniAp)))
-Gini[ind:(dim(Gini)[1]),"GiniAp"] = Gini[ind-1,"GiniAp"] ; remove(ind);
-Gini = Gini[,-2]
+# gini = as.data.frame(read_csv("Data/GINI.csv"))
+# Gini = rep(NA, dim(IPChist)[2]-2)
+# for(i in 3:dim(gini)[1]){
+#   Gini[12*(i-3)+1] = gini[i,2] 
+# }
+# remove(i)
+# Gini = data.frame(Fecha = names(IPChist)[-c(1,2)], GINI = Gini)
+# 
+# #Interpolar datos NAs en Serie GINI
+# 
+# Gini= Gini %>%  mutate(GiniAp = na.approx(GINI,na.rm = F))
+# ind = min(which(is.na(Gini$GiniAp)))
+# Gini[ind:(dim(Gini)[1]),"GiniAp"] = Gini[ind-1,"GiniAp"] ; remove(ind);
+# Gini = Gini[,-2]
 
 #Aniadimos Identificador para le tiempo "t" (para la regresion)
-Tmp = data.frame(Fecha = Gini$Fecha, Tiempo=1:dim(Gini)[1])
+Tmp = data.frame(Fecha = IPC$Fecha, Tiempo=1:length(IPC$Fecha))
 
 #Datos del PIB  ------------------------------------------------
-Pib_Trim = read_csv("Data/PIB_Trimestral.csv")
-Pib = rep(Pib_Trim$PibTrim[Pib_Trim$Anio>=2005]/3,rep(3, sum(Pib_Trim$Anio>=2005) ))
+# Pib_Trim = read_csv("Data/PIB_Trimestral.csv")
+# Pib = rep(Pib_Trim$PibTrim[Pib_Trim$Anio>=2005]/3,rep(3, sum(Pib_Trim$Anio>=2005) ))
+# 
+# #Extrapolamos los 2 ultimos valores del Pib (que no estan disponibles)
+# #Solo repetimos el ultimo
+# PIB = data.frame(Fecha = Gini$Fecha,Pib= c(Pib,rep(Pib[length(Pib)],2) ) )
 
-#Extrapolamos los 2 ultimos valores del Pib (que no estan disponibles)
-#Solo repetimos el ultimo
-PIB = data.frame(Fecha = Gini$Fecha,Pib= c(Pib,rep(Pib[length(Pib)],2) ) )
-
-remove(Tmp,gini,IPChist,Pib_Trim,Pib)
+# remove(gini,IPChist,Pib_Trim,Pib)
 
 
 #Consolidamos en una sola BASE (Por producto) ------------------
@@ -51,8 +53,10 @@ for(k in 1:116){
   
   producto=k
   IPCaux = IPC[,c(1,producto+1)]
-  BDD = Tmp %>% inner_join(Gini) %>% 
-    inner_join(PIB) %>% inner_join(IPCaux)
+  BDD = Tmp %>% inner_join(IPCaux)
+  
+  # BDD = Tmp %>% inner_join(Gini) %>%
+  #   inner_join(PIB) %>% inner_join(IPCaux)
   
   #Dummy para el año 2015 (Comienzo de Deflación) ---------------
   # DummCrisis = rep(1,dim(IPCaux)[1])
