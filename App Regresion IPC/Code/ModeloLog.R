@@ -9,7 +9,7 @@ IPC = t(as.matrix(IPChist[,c(-1,-2)]))
 Items = IPChist$ITEM
 items = as.vector(abbreviate(IPChist$ITEM))
 
-ListItems = data.frame(Items,items)
+ListItems = data.frame(Productos = Items , Abreviaturas = items)
 colnames(IPC) = items
 
 IPC = data.frame(Fecha=rownames(IPC),IPC)
@@ -78,7 +78,7 @@ for(k in 1:116){
 }
 
 
-tabla = data.frame(Items,a,b,pval)
+tabla = data.frame(Productos = Items,a,b,pval)
 Prank = cut(tabla$pval,breaks = c(0,0.001,0.01,0.05,0.1,1),labels = c("***","**","*","."," ") )
 
 tabla$Prank = Prank
@@ -104,8 +104,8 @@ rangos4 = tabla[ind4,]
 rangos3
 rangos4
 
-write.csv(rangos3,file = "Analizado/Rango3.csv")
-write.csv(rangos4,file = "Analizado/Rango4.csv")
+# write.csv(rangos3,file = "Analizado/Rango3.csv")
+# write.csv(rangos4,file = "Analizado/Rango4.csv")
 
 
 

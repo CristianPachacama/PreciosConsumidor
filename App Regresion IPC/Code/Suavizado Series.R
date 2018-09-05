@@ -1,14 +1,14 @@
 # library(mFilter)
 library(quantmod)
 library(stlplus)
-.libPaths()
-library(xts,lib.loc=)
+# .libPaths()
+library(xts)
 library(smooth)
 library(Mcomp)
 library(pracma)
 
-source(file = "FiltroHodrickPrescott.R")
-source(file = "ModeloLog.R")
+source(file = "Code/FiltroHodrickPrescott.R")
+source(file = "Code/ModeloLog.R")
 
 #Filtro Hodrick Prescott   -------------------------------
 hpGen = hpfilter(BDDts3[,1])
@@ -43,7 +43,7 @@ mav = function(x,n=5){
 
 
 mav(BDDts3[,2], n =12 )
-
+hist()
 
 
 
