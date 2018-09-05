@@ -2,7 +2,7 @@ library(readr)
 library(readxl)
 library(dplyr)
 library(zoo)
-
+setwd("C:/Users/JAVIE/OneDrive/Escritorio/Archivos de iie/git/PreciosConsumidor/App Regresion IPC")
 #Datos de IPC ---------------------------------------
 # IPChist = read_csv("Data/IPChistorico.csv")
 # leer base de datos de provinvias parametrizado
