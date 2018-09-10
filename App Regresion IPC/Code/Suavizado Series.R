@@ -22,7 +22,7 @@ for(i in 2:dim(BDDts3)[2]){
 }
 
 #Filtro STL-Loess (Plus)   --------------------------------
-stlx = stlplus(BDDts3[,2],n.p= 12,s.window = 12, t.window = 1)
+stlx = stlplus(BDDts3[,2], s.window = 12, t.window = 12)
 plot(stlx)
 
 
@@ -42,12 +42,18 @@ mav = function(x,n=5){
 }
 
 
-mav(BDDts3[,2], n =12 )
-hist()
+mav12 = mav(BDDts3[,2] , n = 12 )
+mav9 = mav(BDDts3[,2] , n = 9 )
+mav5 = mav(BDDts3[,2] , n = 5 )
 
 
 
+# Escribir en Archivos
+write.csv(hpGen$trend ,file="Analizado/DescomposicionMedMov/hpGen.csv")
 
+write.csv(mav12,file="Analizado/DescomposicionMedMov/mav12.csv")
+write.csv(mav9,file="Analizado/DescomposicionMedMov/mav9.csv")
+write.csv(mav5,file="Analizado/DescomposicionMedMov/mav5.csv")
 
 
 
