@@ -53,13 +53,13 @@ MedMovBeta = function(x,n=5){
   
   mvxRecup = x - resxRecup
   
-  par(mfrow = c(2, 1))
+  # par(mfrow = c(2, 1))
   
-  plot(x, main = paste0("IPC, Media Movil [",n,"]"),type = "l", ylab = "IPC")
-  lines(mvxRecup,col= "red")
-  lines(mvx , col = "blue")
-  plot(resxRecup, ylab = "Residuos", main = "Residuos",col="red")
-  lines(resx)
+  # plot(x, main = paste0("IPC, Media Movil [",n,"]"),type = "l", ylab = "IPC")
+  # lines(mvxRecup,col= "red")
+  # lines(mvx , col = "blue")
+  # plot(resxRecup, ylab = "Residuos", main = "Residuos",col="red")
+  # lines(resx)
   return(data.frame(x,mvx,resx,mvxRecup,resxRecup))
 }
 
@@ -77,6 +77,8 @@ mav12Gen = MedMovBeta(x = IPC$GENERAL , n = 12 )
 
 k=2
 periodos = c(2005, 2007, 2010, 2014, 2019)
+
+
 SerieStnd = as.numeric( IPC[,k+1] / mav12Gen$mvxRecup)
 
 
@@ -107,7 +109,7 @@ BDDgraf1 = BDDgraf %>%
 
 seriegraf1 = ggplot(BDDgraf1, aes(x = Fecha, y = value)) + 
   geom_line(aes(color = Serie), size = 0.7) +
-  scale_color_manual(values = c("#FA5858","#2E2E2E")) +
+  scale_color_manual(values = c("#0174DF","#2E2E2E")) +
   theme_minimal()+
   labs(title = paste("IPC:", productos[k]) , y = "IPC") +
   geom_vline(
@@ -165,9 +167,3 @@ Grafico = grid.arrange(
 )
 
 # plot(Grafico)
-
-
-
-
-
-
