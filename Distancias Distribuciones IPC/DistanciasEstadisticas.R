@@ -110,6 +110,12 @@ seriegraf1 = ggplot(BDDgraf1, aes(x = Fecha, y = value)) +
   scale_color_manual(values = c("#FA5858","#2E2E2E")) +
   theme_minimal()+
   labs(title = paste("IPC:", productos[k]) , y = "IPC") +
+  geom_vline(
+    xintercept = as.Date(paste0(periodos[-c(1,length(periodos))],"-01-01")),
+    linetype = "dashed",
+    color = "red",
+    size = 1
+  ) +
   theme(
     legend.title = element_text(size = 12, color = "black", face = "bold"),
     legend.justification = c(0, 1),
@@ -158,7 +164,7 @@ Grafico = grid.arrange(
                         c(2, 3))
 )
 
-plot(Grafico)
+# plot(Grafico)
 
 
 
