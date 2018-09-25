@@ -54,4 +54,4 @@ MedMovBeta = function(x,n=5){
 }
 
 #Media Movil del IPC GENERAL
-mav12Gen = MedMovBeta(x = IPC$GENERAL , n = 12 )
+# mav12Gen = MedMovBeta(x = IPC$GENERAL , n = 12 )

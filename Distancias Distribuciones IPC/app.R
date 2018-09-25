@@ -29,12 +29,16 @@ library(smacof)
 library(cluster)
 #>> Carga de Datos -----------------------------------------------
 IPC = read_csv("Data/IPChistoricoTrn.csv")
+
 productos = names(IPC)[-1]
 ProductosLista = 1:length(productos)
 names(ProductosLista) = productos
 IPC = data.frame(IPC)
 names(IPC) = c("Fecha", productos)
-periodos = c(2005, 2007, 2010, 2014, 2019)
+
+# periodos0 = c(2005, 2007, 2010, 2014, 2019)
+PeriodoLista = 2006:2018
+names(PeriodoLista) = paste("Año:",PeriodoLista)
 #-------------------------------------------
 source(file ="Code/MedMovil.R" ,local = TRUE)
 #------------------------------------------------
@@ -125,7 +129,15 @@ ui <- navbarPage(title = "Distancias K-S",
                               selectInput('producto', 
                                           label= 'Selecciona Producto',
                                           selected = 1,
-                                          choices=ProductosLista)#,
+                                          choices=ProductosLista),
+                              radioButtons("deflactor", 
+                                           label = "Elije Deflactor",
+                                           choices = c("MM12 - IPC General" = 1, "MM12 - IPC(Serie)" = 2), 
+                                           selected = 1),
+                              checkboxGroupInput("periodos", 
+                                                 label = "Eligir Periodos de Corte", 
+                                                 choices = PeriodoLista,
+                                                 selected = c(2007,2010,2014))
                             ),
                             # Panel Central ------------------------------------
                             mainPanel(
@@ -157,8 +169,20 @@ server <- function(input, output,session) {
   output$graficoDist = renderPlot({
     
     k = as.numeric(input$producto)
+    periodos = c(2005,as.numeric(input$periodos),2019)
     
-    SerieStnd = as.numeric( IPC[,k+1] / mav12Gen$mvxRecup)
+    if(as.numeric(input$deflactor ) == 1){
+      #Deflactor IPC General
+      mav12 = MedMovBeta(IPC$GENERAL,n=12)
+      SerieStnd = as.numeric( IPC[,k+1] / mav12$mvxRecup)
+      
+    }else{
+      #Deflactor Serie elegida
+      mav12 = MedMovBeta(IPC[,k+1] ,n=12)
+      SerieStnd = as.numeric( IPC[,k+1] / mav12$mvxRecup)
+      
+    }
+    
     
     
     # Serie = mav12Gen$resxRecup
@@ -178,7 +202,7 @@ server <- function(input, output,session) {
                        right = F)
     
     
-    BDDgraf = data.frame(Fecha, SerieStnd , SerieOrig =  IPC[,k+1], IPC_GeneralS = mav12Gen$mvxRecup , PeriodoCorte)
+    BDDgraf = data.frame(Fecha, SerieStnd , SerieOrig =  IPC[,k+1], IPC_GeneralS = mav12$mvxRecup , PeriodoCorte)
     MediaSeries = BDDgraf %>% group_by(PeriodoCorte) %>% summarise(Media = mean (SerieStnd))
     
     #Graficos Individuales -------------------------------------------
