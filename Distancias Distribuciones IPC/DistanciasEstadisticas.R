@@ -75,8 +75,8 @@ mav12Gen = MedMovBeta(x = IPC$GENERAL , n = 12 )
 # 2013 - 2017
 # 2017 - 2018
 
-k=2
-periodos = c(2005, 2007, 2010, 2014, 2019)
+# k=2
+# periodos = c(2005, 2007, 2010, 2014, 2019)
 
 
 SerieStnd = as.numeric( IPC[,k+1] / mav12Gen$mvxRecup)
@@ -159,7 +159,7 @@ densidades = ggplot(data = BDDgraf ,
 
 
 #Grafico Multiple -----------------
-Grafico = grid.arrange(
+grid.arrange(
   grobs = list(seriegraf1,seriegraf2,densidades),
   widths = c(3, 2),
   layout_matrix = rbind(c(1, 3),
