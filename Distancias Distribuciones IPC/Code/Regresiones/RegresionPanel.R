@@ -1,21 +1,33 @@
+#------------------------------------------------------------
+#!!!!!!!!!!!!!!!!!!!   Regresion Datos Panel   !!!!!!!!!!!!!!
+#------------------------------------------------------------
+
 #Generar Analisis Completo ---------------------------
 #Ademas de Variables Necesarias
 
-k = as.numeric(input$producto)
-periodos = c(2005,as.numeric(input$periodos),2019)
+# k = as.numeric(input$producto)
+# periodos = c(2005,as.numeric(input$periodos),2019)
 
-if(as.numeric(input$deflactor ) == 1){
-  #Deflactor IPC General
-  mav12 = MedMovBeta(IPC$GENERAL,n=12)
-  SerieStnd = as.numeric( IPC[,k+1] / mav12$mvxRecup)
-  
-}else{
-  #Deflactor Serie elegida
-  mav12 = MedMovBeta(IPC[,k+1] ,n=12)
-  SerieStnd = as.numeric( IPC[,k+1] / mav12$mvxRecup)
-  
-}
 
+
+
+# if(as.numeric(input$deflactor ) == 1){
+#   #Deflactor IPC General
+#   mav12 = MedMovBeta(IPC$GENERAL,n=12)
+#   SerieStnd = as.numeric( IPC[,k+1] / mav12$mvxRecup)
+#   
+# }else{
+#   #Deflactor Serie elegida
+#   mav12 = MedMovBeta(IPC[,k+1] ,n=12)
+#   SerieStnd = as.numeric( IPC[,k+1] / mav12$mvxRecup)
+#   
+# }
+
+
+
+#Quitado del UI la opcion de eleccion del deflactor!!
+mav12 = MedMovBeta(IPC$GENERAL,n=12)
+SerieStnd = as.numeric( IPC[,k+1] / mav12$mvxRecup)
 
 # Serie = mav12Gen$resxRecup
 Fecha = as.Date(IPC$Fecha, format = "%d-%m-%y")

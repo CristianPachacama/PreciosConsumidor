@@ -125,19 +125,27 @@ ui <- navbarPage(title = "Distancias K-S",
                           fluidRow(
                             # Panel Lateral -------------------------------
                             sidebarPanel(width = 3,
-                              h4('Panel Control Graficos'),
-                              selectInput('producto', 
-                                          label= 'Selecciona Producto',
-                                          selected = 2,
-                                          choices=ProductosLista),
-                              radioButtons("deflactor", 
-                                           label = "Elije Deflactor",
-                                           choices = TipoDeflactor, 
-                                           selected = 1),
-                              checkboxGroupInput("periodos", 
-                                                 label = "Eligir Periodos de Corte", 
-                                                 choices = PeriodoLista,
-                                                 selected = c(2007,2010,2015))
+                                         h4('Panel Control Graficos'),
+                                         selectInput('tipoAnalisis', 
+                                                     label= 'Selecciona Tipo de Análisis',
+                                                     selected = 3,
+                                                     choices=c("IPC sin deflactar"=1,
+                                                               "IPC deflactado"=2,
+                                                               "IPC Deflactado, periodos de corte"=3,
+                                                               "IPC producto, fijado periodo"=4)
+                                         ),
+                                         selectInput('producto', 
+                                                     label= 'Selecciona Producto',
+                                                     selected = 2,
+                                                     choices=ProductosLista),
+                                         # radioButtons("deflactor", 
+                                         #              label = "Elije Deflactor",
+                                         #              choices = TipoDeflactor, 
+                                         #              selected = 1),
+                                         checkboxGroupInput("periodos", 
+                                                            label = "Eligir Periodos de Corte", 
+                                                            choices = PeriodoLista,
+                                                            selected = c(2007,2010,2015))
                             ),
                             # Panel Central ------------------------------------
                             mainPanel(
@@ -150,7 +158,6 @@ ui <- navbarPage(title = "Distancias K-S",
                             )
                           ),hr()
                  )
-                          
 )
 
 
@@ -170,123 +177,78 @@ server <- function(input, output,session) {
   output$graficoDist = renderPlot({
     
     #Datos Iniciales y Analisis -----------------------------
-    source(file = "Code/RegresionPanelReact.R", local = TRUE)
+    k = as.numeric(input$producto)
+    periodos = c(2005,as.numeric(input$periodos),2019)
     
-    #Graficos Individuales ----------------------------------
-    BDDgraf1 = BDDgraf 
-    deflactAux = names(TipoDeflactor)[as.numeric(input$deflactor)]
+    # Betas del IPC Sin deflactar
+    if(input$tipoAnalisis == 1){
+      #Regresion   
+      source(file = "Code/Regresiones/Regresion.R", local = TRUE)
+      #Graficos Individuales 
+      source(file = "Code/Graficos/Grafico1.R", local = TRUE)
+    }
     
-    BDDgraf1 = BDDgraf1[,c(1,3,4)]
-    names(BDDgraf1) = c("Fecha",
-                        "Serie Original",
-                        deflactAux)
+    # Betas del IPC Deflactado
+    if(input$tipoAnalisis == 2){
+      #Regresion   
+      source(file = "Code/Regresiones/Regresion.R", local = TRUE)
+      #Graficos Individuales 
+      source(file = "Code/Graficos/Grafico2.R", local = TRUE)
+    }
     
-    BDDgraf1 = BDDgraf1 %>%
-      # select(Fecha,`Serie Original` = SerieOrig, IPC_GeneralS) %>%
-      gather(key = "Serie", value = "value", -Fecha)
+    # Betas del IPC Deflactado, cortes en Periodos
+    if(input$tipoAnalisis == 3){
+      #Regresion   
+      source(file = "Code/Regresiones/RegresionPanel.R", local = TRUE)
+      #Graficos Individuales 
+      source(file = "Code/Graficos/Grafico3.R", local = TRUE)
+    }
     
-    seriegraf1 = ggplot(BDDgraf1, aes(x = Fecha, y = value)) + 
-      geom_line(aes(color = Serie), size = 0.7) +
-      scale_color_manual(values = c("#0174DF","#2E2E2E")) +
-      theme_minimal()+
-      labs(title = paste("IPC:", productos[k]) , y = "IPC") +
-      geom_vline(
-        xintercept = as.Date(paste0(periodos[-c(1,length(periodos))],"-01-01")),
-        linetype = "dashed",
-        color = "red",
-        size = 1
-      ) +
-      theme(
-        legend.title = element_text(size = 12, color = "black", face = "bold"),
-        legend.justification = c(0, 1),
-        legend.position = c(0.05, 0.95),
-        legend.background = element_blank(),
-        legend.key = element_blank()
-      )
-    
-    seriegraf2 =  ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) +
-      geom_line(size = 0.7) + theme_minimal() +
-      labs(title = paste("IPC Deflactado+Regresión:", productos[k]) , y = "IPC Deflactado (por IPC General Suavizado)") +
-      geom_vline(
-        xintercept = as.Date(paste0(periodos[-c(1, length(periodos))], "-01-01")),
-        linetype = "dashed",
-        color = "red",
-        size = 1
-      ) +
-      geom_line(
-        data = predicted,  #Anadir Lineas de Regresion !!!!!!!!!
-        aes(x = Fecha, y = IPCfit, colour = PeriodoCorte),
-        size = 0.7
-      ) +
-      theme(
-        legend.title = element_text(size = 12, color = "black", face = "bold"),
-        legend.justification = c(0, 1),
-        legend.position = c(0.75,0.5),
-        legend.background = element_blank(),
-        legend.key = element_blank()
-      )
+    #Fijado periodo, betas del IPC de Productos
+    if(input$tipoAnalisis == 4){
+      #Regresion   
+      source(file = "Code/Regresiones/RegresionPanel.R", local = TRUE)
+      #Graficos Individuales 
+      source(file = "Code/Graficos/Grafico4.R", local = TRUE)
+    }
     
     
-    densidades = ggplot(data = BDDgraf ,
-                        aes(x = SerieStnd, fill = PeriodoCorte, colour =
-                              PeriodoCorte)) +  geom_density(alpha = 0.2) +
-      labs(title = paste("IPC Deflactado:", productos[k]), x = "IPC Deflactado por Periodo") +
-      geom_vline(data = MediaSeries,
-                 aes(xintercept = Media, color = PeriodoCorte),
-                 linetype = "dashed") +
-      theme(
-        legend.title = element_text(size = 12, color = "black", face = "bold"),
-        legend.justification = c(0, 1),
-        legend.position = c(0.05, 0.95),
-        legend.background = element_blank(),
-        legend.key = element_blank()
-      )
     
-    
-    #Grafico Multiple -----------------
-    grid.arrange(
-      grobs = list(seriegraf1,seriegraf2,densidades),
-      widths = c(3, 2),
-      layout_matrix = rbind(c(1, 3),
-                            c(2, 3))
-    )
     
   })
   
   
   # Tabla resumen de Regresion  -----------------------------
   output$resumenRegres = renderDT({
-    #Datos Iniciales y Analisis -----------------------------
-    source(file = "Code/RegresionPanelReact.R", local = TRUE)
+    #Tabla 1: 
+    if(input$tipoAnalisis == 1){
+      source(file = "Code/Regresiones/Regresion.R", local = TRUE)
+      source(file = "Code/Tablas/Tabla1.R", local = TRUE)
+    }
     
-    #Tabla Resumen de Regresion -----------------------------
-    resumen = data.frame(round(xtable(summary(modelo1)),digits = 5))
-    names(resumen) = c("Estimación","Error Estándar","t-valor","Pr(>|t|)")
-    Pval = as.numeric(summary(modelo1)$coefficients[,4])
-    rangos = cut(Pval,breaks = c(0,0.001,0.01,0.05,0.1,1),
-                 labels = c("***","**","*","."," "))
-    resumen$Signif = rangos
+    #Tabla 2: 
+    if(input$tipoAnalisis == 2){
+      source(file = "Code/Regresiones/Regresion.R", local = TRUE)
+      source(file = "Code/Tablas/Tabla2.R", local = TRUE)
+    }
     
+    #Tabla 3: 
+    if(input$tipoAnalisis == 3){
+      source(file = "Code/Regresiones/RegresionPanel.R", local = TRUE)
+      source(file = "Code/Tablas/Tabla3.R", local = TRUE)
+      
+    }
     
-    datatable(#filter = 'top',
-              #Formato de la tabla -------------------
-              extensions = c('Buttons'), #c('Responsive','Buttons'),
-              options = list(pageLength=10,searchHighlight = TRUE,
-                             dom = 'Bfrtip',
-                             buttons = list('copy','print', list(
-                               extend = 'collection',
-                               buttons = c('csv', 'excel', 'pdf'),
-                               text = 'Descargar'
-                             ))
-              ),
-              {
-                #Tabla a Mostrar  --------------------
-                resumen
-              })
+    #Tabla 4: 
+    if(input$tipoAnalisis == 4){
+      source(file = "Code/Tablas/Tabla4.R", local = TRUE)
+    }
     
+    #Compila Tabla generada en Tabla_i
+    ResumenTabla
   })
   
-
+  
 }
 
 
