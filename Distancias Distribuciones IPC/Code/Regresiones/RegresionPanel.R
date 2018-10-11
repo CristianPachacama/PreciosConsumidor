@@ -24,6 +24,8 @@
 # }
 
 
+k = as.numeric(input$producto)
+periodos = c(2005,as.numeric(input$periodos),2019)
 
 #Quitado del UI la opcion de eleccion del deflactor!!
 mav12 = MedMovBeta(IPC$GENERAL,n=12)
