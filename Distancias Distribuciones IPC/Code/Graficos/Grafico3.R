@@ -2,7 +2,14 @@
 #!!!!!!!!!!!!!!!!!!!  GRAFICAS INDIVIDUALES 3  !!!!!!!!!!!!!!
 #------------------------------------------------------------
 # Graficos del IPC Deflactado, Regresion Panel
-
+anhos=function(periodos){
+  for (i in 1:length(periodos)) {
+    periodos[i]=paste0("01-01-",periodos[i])
+  }
+  periodos=as.Date(periodos,format = "%d-%m-%Y")
+  return(periodos)
+}
+perd=anhos(periodos)
 BDDgraf1 = BDDgraf 
 deflactAux = "MM12(IPC General)"
 
@@ -41,13 +48,26 @@ seriegraf2 =  ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) +
     xintercept = as.Date(paste0(periodos[-c(1, length(periodos))], "-01-01")),
     linetype = "dashed",
     color = "red",
-    size = 1
+    size = 1,
+    labels()
   ) +
   geom_line(
     data = predicted,  #Anadir Lineas de Regresion !!!!!!!!!
     aes(x = Fecha, y = IPCfit, colour = PeriodoCorte),
     size = 0.7
   ) +
+  annotate("text",
+           label=c("a","a","a","a","a"),
+           # label = TeX(paste0("$ \\beta = ",
+           #                    betaAux,"$",
+           #                    as.character(rangos[2]))
+           # ),
+           x=perd,
+            # x = as.Date("01-01-2010", format = "%d-%m-%Y"), 
+           y = max(BDDgraf$SerieStnd),
+           size = 8
+  )
+
   theme(
     legend.title = element_text(size = 12, color = "black", face = "bold"),
     legend.justification = c(0, 1),
