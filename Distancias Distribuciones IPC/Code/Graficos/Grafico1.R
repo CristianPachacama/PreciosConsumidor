@@ -20,7 +20,7 @@ graf=ggplot(data = BDDgraf, aes(x = Fecha, y = SerieOrig)) +
                               as.character(rangos[2]))
                        ), 
            x = as.Date("01-01-2010", format = "%d-%m-%Y"), 
-           y = max(BDDgraf$SerieOrig),
+           y = max(BDDgraf$SerieStnd),
            size = 8
            )
 

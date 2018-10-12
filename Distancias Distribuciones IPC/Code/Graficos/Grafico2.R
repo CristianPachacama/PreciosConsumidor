@@ -20,12 +20,7 @@ seriegraf1 = ggplot(BDDgraf1, aes(x = Fecha, y = value)) +
   scale_color_manual(values = c("#0174DF","#2E2E2E")) +
   theme_minimal()+
   labs(title = paste("IPC:", productos[k]) , y = "IPC") +
-  geom_vline(
-    xintercept = as.Date(paste0(periodos[-c(1,length(periodos))],"-01-01")),
-    linetype = "dashed",
-    color = "red",
-    size = 1
-  ) +
+
   theme(
     legend.title = element_text(size = 12, color = "black", face = "bold"),
     legend.justification = c(0, 1),
@@ -55,15 +50,28 @@ seriegraf1 = ggplot(BDDgraf1, aes(x = Fecha, y = value)) +
 #     legend.background = element_blank(),
 #     legend.key = element_blank()
 #   )
+Pval = as.numeric(summary(modelo1)$coefficients[,4])
+rangos = cut(Pval,breaks = c(0,0.001,0.01,0.05,0.1,1),
+             labels = c("***","**","*","."," "))
+
+betaAux = round(as.numeric(coef(modelo1)[2]),digits = 3)
 
 graf=ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) + 
   geom_line(size = 0.7,colour = "black") +
   # ggtitle("Diagrama de dispersión") +
   geom_smooth(method = "lm",color="red") +theme_minimal()+
   # theme(plot.title = element_text(hjust = 0.5))+
-  labs(title = paste("IPC:", productos[k]) , y = "IPC") 
-  graf=graf+geom_text(data = NULL, x = 1.5, y = 90, label = "Beta:")
-
+  labs(title = paste("IPC:", productos[k]) , y = "IPC")+
+  annotate("text", 
+           label = TeX(paste0("$ \\beta = ",
+                              betaAux,"$",
+                              as.character(rangos[2]))
+           ), 
+           x = as.Date("01-01-2010", format = "%d-%m-%Y"), 
+           y = max(BDDgraf$SerieStnd),
+           size = 8
+  ) 
+  
 
 
 
