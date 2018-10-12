@@ -63,18 +63,17 @@ seriegraf2 =  ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) +
            #                    as.character(rangos[2]))
            # ),
            x=perd,
-            # x = as.Date("01-01-2010", format = "%d-%m-%Y"), 
+           # x = as.Date("01-01-2010", format = "%d-%m-%Y"), 
            y = max(BDDgraf$SerieStnd),
            size = 8
-  )
-
+  )+
   theme(
-    legend.title = element_text(size = 12, color = "black", face = "bold"),
-    legend.justification = c(0, 1),
-    legend.position = c(0.75,0.5),
-    legend.background = element_blank(),
-    legend.key = element_blank()
-  )
+  legend.title = element_text(size = 12, color = "black", face = "bold"),
+  legend.justification = c(0, 1),
+  legend.position = c(0.75,0.5),
+  legend.background = element_blank(),
+  legend.key = element_blank()
+)
 
 
 #Grafico Densidades  ------------------------------------
