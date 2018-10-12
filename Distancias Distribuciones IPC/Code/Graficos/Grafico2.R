@@ -54,7 +54,7 @@ Pval = as.numeric(summary(modelo1)$coefficients[,4])
 rangos = cut(Pval,breaks = c(0,0.001,0.01,0.05,0.1,1),
              labels = c("***","**","*","."," "))
 
-betaAux = round(as.numeric(coef(modelo1)[2]),digits = 3)
+betaAux = round(as.numeric(coef(modelo1)[2]),digits = 5)
 
 graf=ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) + 
   geom_line(size = 0.7,colour = "black") +
