@@ -1,6 +1,8 @@
 #------------------------------------------------------------
 #!!!!!!!!!!!!     Tabla Regresion Simple       !!!!!!!!!!!!!!
 #------------------------------------------------------------
+
+
 resumen = data.frame(round(xtable(summary(modelo1)),digits = 5))
 names(resumen) = c("Estimación","Error Estándar","t-valor","Pr(>|t|)")
 Pval = as.numeric(summary(modelo1)$coefficients[,4])

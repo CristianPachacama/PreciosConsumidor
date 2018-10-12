@@ -22,7 +22,7 @@ library(gridExtra)
 # library(xts)
 library(forecast)
 library(hexbin)
-
+library(MASS)
 #>> Carga de Datos -----------------------------------------------
 IPC = read_csv("Data/IPChistoricoTrn.csv")
 
@@ -186,12 +186,13 @@ server <- function(input, output,session) {
       source(file = "Code/Regresiones/Regresion.R", local = TRUE)
       #Graficos Individuales 
       source(file = "Code/Graficos/Grafico1.R", local = TRUE)
+      
     }
     
     # Betas del IPC Deflactado
     if(input$tipoAnalisis == 2){
       #Regresion   
-      source(file = "Code/Regresiones/Regresion.R", local = TRUE)
+      source(file = "Code/Regresiones/Regresion1.R", local = TRUE)
       #Graficos Individuales 
       source(file = "Code/Graficos/Grafico2.R", local = TRUE)
     }
@@ -220,15 +221,16 @@ server <- function(input, output,session) {
   
   # Tabla resumen de Regresion  -----------------------------
   output$resumenRegres = renderDT({
-    #Tabla 1: 
+    #Tabla 1:     
     if(input$tipoAnalisis == 1){
       source(file = "Code/Regresiones/Regresion.R", local = TRUE)
       source(file = "Code/Tablas/Tabla1.R", local = TRUE)
+      
     }
     
     #Tabla 2: 
     if(input$tipoAnalisis == 2){
-      source(file = "Code/Regresiones/Regresion.R", local = TRUE)
+      source(file = "Code/Regresiones/Regresion1.R", local = TRUE)
       source(file = "Code/Tablas/Tabla2.R", local = TRUE)
     }
     
