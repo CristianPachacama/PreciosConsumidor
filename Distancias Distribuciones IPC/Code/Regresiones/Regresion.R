@@ -22,7 +22,7 @@ IPCp=IPC[,k+1]
 
 temp=1:length(IPCp)
 modelo1=lm(IPCp~temp)
-summary(modelo1)
+# summary(modelo1)
 #IPCfit = forecast(modelo)
 #Quitado del UI la opcion de eleccion del deflactor!!
 

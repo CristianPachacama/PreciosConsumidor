@@ -9,6 +9,7 @@
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 library(shiny)
 library(shinythemes)
+library(latex2exp)
 #Tablas
 library(readxl)
 library(readr)
@@ -192,7 +193,7 @@ server <- function(input, output,session) {
     # Betas del IPC Deflactado
     if(input$tipoAnalisis == 2){
       #Regresion   
-      source(file = "Code/Regresiones/Regresion1.R", local = TRUE)
+      source(file = "Code/Regresiones/RegresionDeflactado.R", local = TRUE)
       #Graficos Individuales 
       source(file = "Code/Graficos/Grafico2.R", local = TRUE)
     }
@@ -230,7 +231,7 @@ server <- function(input, output,session) {
     
     #Tabla 2: 
     if(input$tipoAnalisis == 2){
-      source(file = "Code/Regresiones/Regresion1.R", local = TRUE)
+      source(file = "Code/Regresiones/RegresionDeflactado.R", local = TRUE)
       source(file = "Code/Tablas/Tabla2.R", local = TRUE)
     }
     
