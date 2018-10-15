@@ -6,6 +6,7 @@
 #Ademas de Variables Necesarias
 
 # k = as.numeric(input$producto)
+
 # periodos = c(2005,as.numeric(input$periodos),2019)
 
 
@@ -25,6 +26,7 @@
 
 
 k = as.numeric(input$producto)
+# k=1
 periodos = c(2005,as.numeric(input$periodos),2019)
 
 #Quitado del UI la opcion de eleccion del deflactor!!

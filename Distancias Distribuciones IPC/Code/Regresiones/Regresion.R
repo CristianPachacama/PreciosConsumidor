@@ -6,7 +6,7 @@
  k = as.numeric(input$producto)
 # k=1
 # IPC = read_csv("Data/IPChistoricoTrn.csv")
-# 
+
 # productos = names(IPC)[-1]
 # ProductosLista = 1:length(productos)
 # names(ProductosLista) = productos
@@ -19,7 +19,7 @@ IPCp=IPC[,k+1]
 
 #Modelo
 
-
+# confint.lm(modelo1)
 temp=1:length(IPCp)
 modelo1=lm(IPCp~temp)
 # summary(modelo1)

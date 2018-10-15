@@ -33,7 +33,7 @@ names(ProductosLista) = productos
 IPC = data.frame(IPC)
 names(IPC) = c("Fecha", productos)
 
-# periodos0 = c(2005, 2007, 2010, 2014, 2019)
+# periodos = c(2005, 2007, 2010, 2014, 2019)
 PeriodoLista = 2006:2018
 names(PeriodoLista) = paste("Año:",PeriodoLista)
 

@@ -3,16 +3,24 @@
 #------------------------------------------------------------
 # Graficos del IPC Deflactado, Regresion Panel
 anhos=function(periodos){
-  for (i in 1:length(periodos)) {
-    periodos[i]=paste0("01-01-",periodos[i])
-  }
+
+  periodos[2:length(periodos)]=periodos[2:length(periodos)]+1
+  periodos=paste0("01-06-",periodos)
   periodos=as.Date(periodos,format = "%d-%m-%Y")
-  return(periodos)
+  return(periodos[1:length(periodos)-1])
 }
 perd=anhos(periodos)
+
 BDDgraf1 = BDDgraf 
 deflactAux = "MM12(IPC General)"
-
+resumen = data.frame(round(xtable(summary(modelo1)),digits = 5))
+names(resumen) = c("Estimación","Error Estándar","t-valor","Pr(>|t|)")
+Pval = as.numeric(summary(modelo1)$coefficients[,4])
+rangos = cut(Pval,breaks = c(0,0.001,0.01,0.05,0.1,1),
+             labels = c("***","**","*","."," "))
+resumen$Signif = rangos
+x=startsWith(rownames(resumen),"Tmp")
+betas=resumen$Estimación[x]
 BDDgraf1 = BDDgraf1[,c(1,3,4)]
 names(BDDgraf1) = c("Fecha",
                     "Serie Original",
@@ -57,15 +65,15 @@ seriegraf2 =  ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) +
     size = 0.7
   ) +
   annotate("text",
-           label=c("a","a","a","a","a"),
-           # label = TeX(paste0("$ \\beta = ",
-           #                    betaAux,"$",
-           #                    as.character(rangos[2]))
-           # ),
+           # label=paste0("b=",betas),
+           label = TeX(paste0("$ \\beta = ",
+                              betas,"$",
+                              as.character(rangos[x]))
+           ),
            x=perd,
            # x = as.Date("01-01-2010", format = "%d-%m-%Y"), 
            y = max(BDDgraf$SerieStnd),
-           size = 8
+           size = 5
   )+
   theme(
   legend.title = element_text(size = 12, color = "black", face = "bold"),
