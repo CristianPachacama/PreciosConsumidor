@@ -2,6 +2,7 @@
 #!!!!!!!!!!!!!!!!!!!  GRAFICAS INDIVIDUALES 3  !!!!!!!!!!!!!!
 #------------------------------------------------------------
 # Graficos del IPC Deflactado, Regresion Panel
+# k=2
 anhos=function(periodos){
 
   periodos[2:length(periodos)]=periodos[2:length(periodos)]+1
@@ -21,6 +22,24 @@ rangos = cut(Pval,breaks = c(0,0.001,0.01,0.05,0.1,1),
 resumen$Signif = rangos
 x=startsWith(rownames(resumen),"Tmp")
 betas=resumen$Estimación[x]
+tablabetas=resumen[x,c(1,2)]
+
+
+tablabetas[2:length(tablabetas[,1]),1]=tablabetas[2:length(tablabetas[,1]),1]+tablabetas[1,1]
+N=100
+etiquetas1 = c()
+for (i in 1:(length(periodos) - 1)) {
+  etiquetas1=c(etiquetas1,replicate(N,etiquetas[i]))
+  }
+etiquetas1=as.factor(etiquetas1)
+
+# periodos = c(2010,2011,2012,2013)
+xsim=c()
+for (i in 1:length(tablabetas[,1])) {
+  xsim=c(xsim,rnorm(N,tablabetas[i,1],tablabetas[i,2]))
+}
+BDDFF=data.frame(Periodos_Corte=etiquetas1,xsim)  
+mediasbetas=data.frame(medias=tablabetas[,1], periodos1=etiquetas)
 BDDgraf1 = BDDgraf1[,c(1,3,4)]
 names(BDDgraf1) = c("Fecha",
                     "Serie Original",
@@ -85,12 +104,11 @@ seriegraf2 =  ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) +
 
 
 #Grafico Densidades  ------------------------------------
-densidades = ggplot(data = BDDgraf ,
-                    aes(x = SerieStnd, fill = PeriodoCorte, colour =
-                          PeriodoCorte)) +  geom_density(alpha = 0.2) +
+densidades = ggplot(data = BDDFF ,
+                    aes(xsim, fill = Periodos_Corte, color=Periodos_Corte)) +  geom_density(alpha = 0.2) +
   labs(title = paste("IPC Deflactado:", productos[k]), x = "IPC Deflactado por Periodo") +
-  geom_vline(data = MediaSeries,
-             aes(xintercept = Media, color = PeriodoCorte),
+  geom_vline(data = mediasbetas,
+             aes(xintercept = medias, color=periodos1),
              linetype = "dashed") +
   theme(
     legend.title = element_text(size = 12, color = "black", face = "bold"),

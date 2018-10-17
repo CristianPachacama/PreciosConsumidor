@@ -64,3 +64,4 @@ predicted = data.frame(Tmp=BDDpanel$Tmp, PeriodoCorte=BDDpanel$PeriodoCorte)
 IPCfit = forecast(modelo1,predicted)
 predicted$IPCfit = as.numeric(IPCfit$mean)
 predicted$Fecha = BDDgraf$Fecha
+
