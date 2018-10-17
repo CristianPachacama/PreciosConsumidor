@@ -150,7 +150,8 @@ ui <- navbarPage(title = "Distancias K-S",
                             ),
                             # Panel Central ------------------------------------
                             mainPanel(
-                              h3('Distribución del IPC Deflactado'),
+                              # h3('Distribución del IPC Deflactado'),
+                              h3(textOutput('titulo')),
                               h4(textOutput('productNombre')),hr(),
                               plotOutput('graficoDist',height = "530px",width = '110%'),
                               h4('Resumen del Modelo'),
@@ -167,6 +168,17 @@ ui <- navbarPage(title = "Distancias K-S",
 # ========================================================================
 server <- function(input, output,session) {
   
+  #Titulo -------------------------------------
+  output$titulo = renderText({
+    TipoAnalisis = c("IPC sin deflactar"=1,
+                     "IPC Deflactado"=2,
+                     "IPC Deflactado (Análisis por periodos)"=3,
+                     "IPC producto, fijado periodo"=4)
+    names(TipoAnalisis)[as.numeric(input$tipoAnalisis)]
+    
+  })
+  
+  
   #Subtitulo Producto  ------------------------
   output$productNombre = renderText({
     
@@ -174,10 +186,10 @@ server <- function(input, output,session) {
     
   })
   
-  # Grafico Generado --------------------------
+  # Grafico Generado ---------------------------
   output$graficoDist = renderPlot({
     
-    #Datos Iniciales y Analisis -----------------------------
+    #Datos Iniciales y Analisis ----------------
     k = as.numeric(input$producto)
     periodos = c(2005,as.numeric(input$periodos),2019)
     

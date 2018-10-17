@@ -13,7 +13,7 @@ graf=ggplot(data = BDDgraf, aes(x = Fecha, y = SerieOrig)) +
   # ggtitle("Diagrama de dispersión") +
   geom_smooth(method = "lm",color="red") +theme_minimal()+
   # theme(plot.title = element_text(hjust = 0.5))+
-  labs(title = paste("IPC:", productos[k]) , y = "IPC")+
+  labs(title = paste("IPC & Regresión:", productos[k]) , y = "IPC")+
   annotate("text", 
            label = TeX(paste0("$ \\beta = ",
                               betaAux,"$",

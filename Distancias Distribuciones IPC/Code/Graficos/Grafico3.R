@@ -70,7 +70,8 @@ seriegraf1 = ggplot(BDDgraf1, aes(x = Fecha, y = value)) +
 
 seriegraf2 =  ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) +
   geom_line(size = 0.7) + theme_minimal() +
-  labs(title = paste("IPC Deflactado+Regresión:", productos[k]) , y = "IPC Deflactado (por IPC General Suavizado)") +
+  labs(title = paste("IPC Deflactado & Regresión por Periodo:", productos[k]) , 
+       y = "IPC Deflactado") +
   geom_vline(
     xintercept = as.Date(paste0(periodos[-c(1, length(periodos))], "-01-01")),
     linetype = "dashed",
@@ -106,7 +107,7 @@ seriegraf2 =  ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) +
 #Grafico Densidades  ------------------------------------
 densidades = ggplot(data = BDDFF ,
                     aes(xsim, fill = Periodos_Corte, color=Periodos_Corte)) +  geom_density(alpha = 0.2) +
-  labs(title = paste("IPC Deflactado:", productos[k]), x = "IPC Deflactado por Periodo") +
+  labs(title = paste("IPC Deflactado:", productos[k]), x = "Distribución de Betas por Periodo") +
   geom_vline(data = mediasbetas,
              aes(xintercept = medias, color=periodos1),
              linetype = "dashed") +
