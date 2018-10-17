@@ -29,7 +29,7 @@ IPC = read_csv("Data/IPChistoricoTrn.csv")
 
 productos = names(IPC)[-1]
 ProductosLista = 1:length(productos)
-names(ProductosLista) = productos
+names(ProductosLista) = paste(ProductosLista,".",productos)
 IPC = data.frame(IPC)
 names(IPC) = c("Fecha", productos)
 

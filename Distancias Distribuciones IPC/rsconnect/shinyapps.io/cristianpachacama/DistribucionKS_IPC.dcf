@@ -5,6 +5,6 @@ account: cristianpachacama
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 469572
-bundleId: 1623147
+bundleId: 1647876
 url: https://cristianpachacama.shinyapps.io/DistribucionKS_IPC/
-when: 1538674316.88995
+when: 1539790705.29579
