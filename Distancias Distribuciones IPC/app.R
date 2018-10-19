@@ -143,10 +143,12 @@ ui <- navbarPage(title = "Distancias K-S",
                                          #              label = "Elije Deflactor",
                                          #              choices = TipoDeflactor, 
                                          #              selected = 1),
-                                         checkboxGroupInput("periodos", 
-                                                            label = "Eligir Periodos de Corte", 
-                                                            choices = PeriodoLista,
-                                                            selected = c(2007,2010,2015))
+                                         
+                                         # checkboxGroupInput("periodos", 
+                                         #                    label = "Eligir Periodos de Corte", 
+                                         #                    choices = PeriodoLista,
+                                         #                    selected = c(2007,2010,2015))
+                                         uiOutput("moreControls")
                             ),
                             # Panel Central ------------------------------------
                             mainPanel(
@@ -185,7 +187,14 @@ server <- function(input, output,session) {
     names(ProductosLista)[as.numeric(input$producto)]
     
   })
-  
+  output$moreControls <- renderUI({
+    if(input$tipoAnalisis == 3){
+      checkboxGroupInput("periodos", 
+                         label = "Eligir Periodos de Corte", 
+                         choices = PeriodoLista,
+                         selected = c(2007,2010,2015))}
+  }
+  )
   # Grafico Generado ---------------------------
   output$graficoDist = renderPlot({
     
@@ -216,6 +225,8 @@ server <- function(input, output,session) {
       source(file = "Code/Regresiones/RegresionPanel.R", local = TRUE)
       #Graficos Individuales 
       source(file = "Code/Graficos/Grafico3.R", local = TRUE)
+      
+     
     }
     
     #Fijado periodo, betas del IPC de Productos
