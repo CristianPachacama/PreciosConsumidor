@@ -221,10 +221,13 @@ server <- function(input, output,session) {
     
     # Betas del IPC Deflactado, cortes en Periodos
     if(input$tipoAnalisis == 3){
-      #Regresion   
-      source(file = "Code/Regresiones/RegresionPanel.R", local = TRUE)
-      #Graficos Individuales 
-      source(file = "Code/Graficos/Grafico3.R", local = TRUE)
+      
+      try({
+        #Regresion   
+        source(file = "Code/Regresiones/RegresionPanel.R", local = TRUE)
+        #Graficos Individuales 
+        source(file = "Code/Graficos/Grafico3.R", local = TRUE)
+      })
       
      
     }
@@ -260,8 +263,11 @@ server <- function(input, output,session) {
     
     #Tabla 3: 
     if(input$tipoAnalisis == 3){
-      source(file = "Code/Regresiones/RegresionPanel.R", local = TRUE)
-      source(file = "Code/Tablas/Tabla3.R", local = TRUE)
+      
+      try({
+        source(file = "Code/Regresiones/RegresionPanel.R", local = TRUE)
+        source(file = "Code/Tablas/Tabla3.R", local = TRUE)
+      })
       
     }
     
