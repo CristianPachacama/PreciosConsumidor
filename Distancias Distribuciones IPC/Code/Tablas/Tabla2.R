@@ -4,7 +4,7 @@
 
 
 resumen = data.frame(round(xtable(summary(modelo1)),digits = 5))
-names(resumen) = c("EstimaciÃ³n","Error EstÃ¡ndar","t-valor","Pr(>|t|)")
+names(resumen) = c("Estimacián","Error Estándar","t-valor","Pr(>|t|)")
 Pval = as.numeric(summary(modelo1)$coefficients[,4])
 rangos = cut(Pval,breaks = c(0,0.001,0.01,0.05,0.1,1),
              labels = c("***","**","*","."," "))

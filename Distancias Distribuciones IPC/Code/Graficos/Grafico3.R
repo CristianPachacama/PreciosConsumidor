@@ -15,13 +15,13 @@ perd=anhos(periodos)
 BDDgraf1 = BDDgraf 
 deflactAux = "MM12(IPC General)"
 resumen = data.frame(round(xtable(summary(modelo1)),digits = 5))
-names(resumen) = c("EstimaciÃ³n","Error EstÃ¡ndar","t-valor","Pr(>|t|)")
+names(resumen) = c("Estimación","Error Estándar","t-valor","Pr(>|t|)")
 Pval = as.numeric(summary(modelo1)$coefficients[,4])
 rangos = cut(Pval,breaks = c(0,0.001,0.01,0.05,0.1,1),
              labels = c("***","**","*","."," "))
 resumen$Signif = rangos
 x=startsWith(rownames(resumen),"Tmp")
-betas=resumen$EstimaciÃ³n[x]
+betas=resumen$`Estimación`[x]
 tablabetas=resumen[x,c(1,2)]
 
 
@@ -74,7 +74,7 @@ seriegraf1 = ggplot(BDDgraf1, aes(x = Fecha, y = value)) +
 
 seriegraf2 =  ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) +
   geom_line(size = 0.7) + theme_minimal() +
-  labs(title = paste("IPC Deflactado & RegresiÃ³n por Periodo:", productos[k]) , 
+  labs(title = paste("IPC Deflactado & Regresión por Periodo:", productos[k]) , 
        y = "IPC Deflactado") +
   geom_vline(
     xintercept = as.Date(paste0(periodos[-c(1, length(periodos))], "-01-01")),
