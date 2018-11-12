@@ -11,7 +11,7 @@ anhos=function(periodos){
   return(periodos[1:length(periodos)-1])
 }
 perd=anhos(periodos)
-
+#---------------------------------------
 BDDgraf1 = BDDgraf 
 deflactAux = "MM12(IPC General)"
 resumen = data.frame(round(xtable(summary(modelo1)),digits = 5))
@@ -24,9 +24,9 @@ x=startsWith(rownames(resumen),"Tmp")
 betas=resumen$`Estimación`[x]
 tablabetas=resumen[x,c(1,2)]
 
-
+#---------------------------------------
 tablabetas[2:length(tablabetas[,1]),1]=tablabetas[2:length(tablabetas[,1]),1]+tablabetas[1,1]
-N=100
+N=300
 etiquetas1 = c()
 for (i in 1:(length(periodos) - 1)) {
   etiquetas1=c(etiquetas1,replicate(N,etiquetas[i]))
@@ -48,7 +48,7 @@ names(BDDgraf1) = c("Fecha",
 BDDgraf1 = BDDgraf1 %>%
   # select(Fecha,`Serie Original` = SerieOrig, IPC_GeneralS) %>%
   gather(key = "Serie", value = "value", -Fecha)
-
+#-------------------------------------------
 seriegraf1 = ggplot(BDDgraf1, aes(x = Fecha, y = value)) + 
   geom_line(aes(color = Serie), size = 0.7) +
   scale_color_manual(values = c("#0174DF","#2E2E2E")) +
@@ -71,7 +71,8 @@ seriegraf1 = ggplot(BDDgraf1, aes(x = Fecha, y = value)) +
     breaks = "15 months",
     date_labels = "%b %Y"
   )
-
+#----------------------------------------
+posY = 0.92
 seriegraf2 =  ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) +
   geom_line(size = 0.7) + theme_minimal() +
   labs(title = paste("IPC Deflactado & Regresión por Periodo:", productos[k]) , 
@@ -89,14 +90,23 @@ seriegraf2 =  ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) +
     size = 0.7
   ) +
   annotate("text",
-           # label=paste0("b=",betas),
            label = TeX(paste0("$ \\beta = ",
-                              betas,"$",
+                              round(betas,5),"$",
                               as.character(rangos[x]))
            ),
-           x=perd,
+           x = perd,
            # x = as.Date("01-01-2010", format = "%d-%m-%Y"), 
            y = max(BDDgraf$SerieStnd),
+           size = 5
+  )+
+  annotate("text",
+           label = TeX(paste0("$ \\alpha = ",
+                              round(mediasbetas$medias,5),"$"
+                              )
+           ),
+           x = perd,
+           #Posicion Y
+           y = posY*max(BDDgraf$SerieStnd) + (1-posY)*min(BDDgraf$SerieStnd),
            size = 5
   )+
   theme(
@@ -115,7 +125,7 @@ seriegraf2 =  ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) +
 #Grafico Densidades  ------------------------------------
 densidades = ggplot(data = BDDFF ,
                     aes(xsim, fill = Periodos_Corte, color=Periodos_Corte)) +  geom_density(alpha = 0.2) +
-  labs(title = paste("IPC Deflactado:", productos[k]), x = "DistribuciÃ³n de Betas por Periodo") +
+  labs(title = TeX("Distribución de $\\alpha 's$ por Periodo")) +
   geom_vline(data = mediasbetas,
              aes(xintercept = medias, color=periodos1),
              linetype = "dashed") +
@@ -125,7 +135,18 @@ densidades = ggplot(data = BDDFF ,
     legend.position = c(0.05, 0.95),
     legend.background = element_blank(),
     legend.key = element_blank()
+  ) +
+  annotate("text",
+           label = TeX(paste0("$ \\alpha = ",
+                              round(mediasbetas$medias,5),"$"
+           )
+           ),
+           x = mediasbetas$medias,
+           #Posicion Y
+           y = -10,
+           size = 3
   )
+  
 
 
 #Grafico Multiple -----------------
