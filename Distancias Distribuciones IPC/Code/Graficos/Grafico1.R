@@ -18,11 +18,15 @@ graf=ggplot(data = BDDgraf, aes(x = Fecha, y = SerieOrig)) +
            label = TeX(paste0("$ \\beta = ",
                               betaAux,"$",
                               as.character(rangos[2]))
-                       ), 
+           ), 
            x = as.Date("01-01-2010", format = "%d-%m-%Y"), 
            y = max(BDDgraf$SerieOrig),
            size = 8
-           )
+  )+ 
+  scale_x_date(                                        
+    breaks = "10 months",
+    date_labels = "%b %Y"
+  )
 
 plot(graf)
 

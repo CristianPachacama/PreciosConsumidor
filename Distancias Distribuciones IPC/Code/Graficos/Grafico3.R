@@ -4,7 +4,7 @@
 # Graficos del IPC Deflactado, Regresion Panel
 # k=2
 anhos=function(periodos){
-
+  
   periodos[2:length(periodos)]=periodos[2:length(periodos)]+1
   periodos=paste0("01-06-",periodos)
   periodos=as.Date(periodos,format = "%d-%m-%Y")
@@ -30,7 +30,7 @@ N=100
 etiquetas1 = c()
 for (i in 1:(length(periodos) - 1)) {
   etiquetas1=c(etiquetas1,replicate(N,etiquetas[i]))
-  }
+}
 etiquetas1=as.factor(etiquetas1)
 
 # periodos = c(2010,2011,2012,2013)
@@ -66,6 +66,10 @@ seriegraf1 = ggplot(BDDgraf1, aes(x = Fecha, y = value)) +
     legend.position = c(0.05, 0.95),
     legend.background = element_blank(),
     legend.key = element_blank()
+  )+ 
+  scale_x_date(                                        
+    breaks = "15 months",
+    date_labels = "%b %Y"
   )
 
 seriegraf2 =  ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) +
@@ -96,12 +100,16 @@ seriegraf2 =  ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) +
            size = 5
   )+
   theme(
-  legend.title = element_text(size = 12, color = "black", face = "bold"),
-  legend.justification = c(0, 1),
-  legend.position = c(0.75,0.5),
-  legend.background = element_blank(),
-  legend.key = element_blank()
-)
+    legend.title = element_text(size = 12, color = "black", face = "bold"),
+    legend.justification = c(0, 1),
+    legend.position = c(0.75,0.5),
+    legend.background = element_blank(),
+    legend.key = element_blank()
+  )+ 
+  scale_x_date(                                        
+    breaks = "15 months",
+    date_labels = "%b %Y"
+  )
 
 
 #Grafico Densidades  ------------------------------------

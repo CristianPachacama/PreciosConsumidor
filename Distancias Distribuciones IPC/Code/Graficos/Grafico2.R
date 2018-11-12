@@ -27,6 +27,10 @@ seriegraf1 = ggplot(BDDgraf1, aes(x = Fecha, y = value)) +
     legend.position = c(0.05, 0.95),
     legend.background = element_blank(),
     legend.key = element_blank()
+  )+ 
+  scale_x_date(                                        
+    breaks = "10 months",
+    date_labels = "%b %Y"
   )
 
 # seriegraf2 =  ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) +
@@ -70,7 +74,11 @@ graf=ggplot(data = BDDgraf, aes(x = Fecha, y = SerieStnd)) +
            x = as.Date("01-01-2010", format = "%d-%m-%Y"), 
            y = max(BDDgraf$SerieStnd),
            size = 8
-  ) 
+  ) + 
+  scale_x_date(                                        
+    breaks = "10 months",
+    date_labels = "%b %Y"
+  )
   
 
 
