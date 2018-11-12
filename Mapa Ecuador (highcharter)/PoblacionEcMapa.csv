@@ -1,0 +1,323 @@
+Provincia,Anio,value
+Azuay,2001,712127
+Azuay,2002,722127
+Azuay,2003,742127
+Azuay,2004,772127
+Azuay,2005,812127
+Azuay,2006,862127
+Azuay,2007,922127
+Azuay,2008,992127
+Azuay,2009,1072127
+Azuay,2010,1162127
+Azuay,2011,1262127
+Azuay,2012,1372127
+Azuay,2013,1492127
+Azuay,2014,1622127
+Cañar,2001,225185
+Cañar,2002,235185
+Cañar,2003,255185
+Cañar,2004,285185
+Cañar,2005,325185
+Cañar,2006,375185
+Cañar,2007,435185
+Cañar,2008,505185
+Cañar,2009,585185
+Cañar,2010,675185
+Cañar,2011,775185
+Cañar,2012,885185
+Cañar,2013,1005185
+Cañar,2014,1135185
+Chimborazo,2001,458582
+Chimborazo,2002,468582
+Chimborazo,2003,488582
+Chimborazo,2004,518582
+Chimborazo,2005,558582
+Chimborazo,2006,608582
+Chimborazo,2007,668582
+Chimborazo,2008,738582
+Chimborazo,2009,818582
+Chimborazo,2010,908582
+Chimborazo,2011,1008582
+Chimborazo,2012,1118582
+Chimborazo,2013,1238582
+Chimborazo,2014,1368582
+Cotopaxi,2001,409206
+Cotopaxi,2002,419206
+Cotopaxi,2003,439206
+Cotopaxi,2004,469206
+Cotopaxi,2005,509206
+Cotopaxi,2006,559206
+Cotopaxi,2007,619206
+Cotopaxi,2008,689206
+Cotopaxi,2009,769206
+Cotopaxi,2010,859206
+Cotopaxi,2011,959206
+Cotopaxi,2012,1069206
+Cotopaxi,2013,1189206
+Cotopaxi,2014,1319206
+El Oro,2001,600660
+El Oro,2002,610660
+El Oro,2003,630660
+El Oro,2004,660660
+El Oro,2005,700660
+El Oro,2006,750660
+El Oro,2007,810660
+El Oro,2008,880660
+El Oro,2009,960660
+El Oro,2010,1050660
+El Oro,2011,1150660
+El Oro,2012,1260660
+El Oro,2013,1380660
+El Oro,2014,1510660
+Esmeraldas,2001,534093
+Esmeraldas,2002,544093
+Esmeraldas,2003,564093
+Esmeraldas,2004,594093
+Esmeraldas,2005,634093
+Esmeraldas,2006,684093
+Esmeraldas,2007,744093
+Esmeraldas,2008,814093
+Esmeraldas,2009,894093
+Esmeraldas,2010,984093
+Esmeraldas,2011,1084093
+Esmeraldas,2012,1194093
+Esmeraldas,2013,1314093
+Esmeraldas,2014,1444093
+Galapagos,2001,25125
+Galapagos,2002,35125
+Galapagos,2003,55125
+Galapagos,2004,85125
+Galapagos,2005,125125
+Galapagos,2006,175125
+Galapagos,2007,235125
+Galapagos,2008,305125
+Galapagos,2009,385125
+Galapagos,2010,475125
+Galapagos,2011,575125
+Galapagos,2012,685125
+Galapagos,2013,805125
+Galapagos,2014,935125
+Guayas,2001,3645484
+Guayas,2002,3655484
+Guayas,2003,3675484
+Guayas,2004,3705484
+Guayas,2005,3745484
+Guayas,2006,3795484
+Guayas,2007,3855484
+Guayas,2008,3925484
+Guayas,2009,4005484
+Guayas,2010,4095484
+Guayas,2011,4195484
+Guayas,2012,4305484
+Guayas,2013,4425484
+Guayas,2014,4555484
+Imbabura,2001,398245
+Imbabura,2002,408245
+Imbabura,2003,428245
+Imbabura,2004,458245
+Imbabura,2005,498245
+Imbabura,2006,548245
+Imbabura,2007,608245
+Imbabura,2008,678245
+Imbabura,2009,758245
+Imbabura,2010,848245
+Imbabura,2011,948245
+Imbabura,2012,1058245
+Imbabura,2013,1178245
+Imbabura,2014,1308245
+Loja,2001,448967
+Loja,2002,458967
+Loja,2003,478967
+Loja,2004,508967
+Loja,2005,548967
+Loja,2006,598967
+Loja,2007,658967
+Loja,2008,728967
+Loja,2009,808967
+Loja,2010,898967
+Loja,2011,998967
+Loja,2012,1108967
+Loja,2013,1228967
+Loja,2014,1358967
+Los Rios,2001,778116
+Los Rios,2002,788116
+Los Rios,2003,808116
+Los Rios,2004,838116
+Los Rios,2005,878116
+Los Rios,2006,928116
+Los Rios,2007,988116
+Los Rios,2008,1058116
+Los Rios,2009,1138116
+Los Rios,2010,1228116
+Los Rios,2011,1328116
+Los Rios,2012,1438116
+Los Rios,2013,1558116
+Los Rios,2014,1688116
+Manabi,2001,1369781
+Manabi,2002,1379781
+Manabi,2003,1399781
+Manabi,2004,1429781
+Manabi,2005,1469781
+Manabi,2006,1519781
+Manabi,2007,1579781
+Manabi,2008,1649781
+Manabi,2009,1729781
+Manabi,2010,1819781
+Manabi,2011,1919781
+Manabi,2012,2029781
+Manabi,2013,2149781
+Manabi,2014,2279781
+Morona Santiago,2001,147941
+Morona Santiago,2002,157941
+Morona Santiago,2003,177941
+Morona Santiago,2004,207941
+Morona Santiago,2005,247941
+Morona Santiago,2006,297941
+Morona Santiago,2007,357941
+Morona Santiago,2008,427941
+Morona Santiago,2009,507941
+Morona Santiago,2010,597941
+Morona Santiago,2011,697941
+Morona Santiago,2012,807941
+Morona Santiago,2013,927941
+Morona Santiago,2014,1057941
+Napo,2001,103698
+Napo,2002,113698
+Napo,2003,133698
+Napo,2004,163698
+Napo,2005,203698
+Napo,2006,253698
+Napo,2007,313698
+Napo,2008,383698
+Napo,2009,463698
+Napo,2010,553698
+Napo,2011,653698
+Napo,2012,763698
+Napo,2013,883698
+Napo,2014,1013698
+Orellana,2001,136397
+Orellana,2002,146397
+Orellana,2003,166397
+Orellana,2004,196397
+Orellana,2005,236397
+Orellana,2006,286397
+Orellana,2007,346397
+Orellana,2008,416397
+Orellana,2009,496397
+Orellana,2010,586397
+Orellana,2011,686397
+Orellana,2012,796397
+Orellana,2013,916397
+Orellana,2014,1046397
+Pastaza,2001,83934
+Pastaza,2002,93934
+Pastaza,2003,113934
+Pastaza,2004,143934
+Pastaza,2005,183934
+Pastaza,2006,233934
+Pastaza,2007,293934
+Pastaza,2008,363934
+Pastaza,2009,443934
+Pastaza,2010,533934
+Pastaza,2011,633934
+Pastaza,2012,743934
+Pastaza,2013,863934
+Pastaza,2014,993934
+Pichincha,2001,2576288
+Pichincha,2002,2586288
+Pichincha,2003,2606288
+Pichincha,2004,2636288
+Pichincha,2005,2676288
+Pichincha,2006,2726288
+Pichincha,2007,2786288
+Pichincha,2008,2856288
+Pichincha,2009,2936288
+Pichincha,2010,3026288
+Pichincha,2011,3126288
+Pichincha,2012,3236288
+Pichincha,2013,3356288
+Pichincha,2014,3486288
+Santa Elena,2001,308694
+Santa Elena,2002,318694
+Santa Elena,2003,338694
+Santa Elena,2004,368694
+Santa Elena,2005,408694
+Santa Elena,2006,458694
+Santa Elena,2007,518694
+Santa Elena,2008,588694
+Santa Elena,2009,668694
+Santa Elena,2010,758694
+Santa Elena,2011,858694
+Santa Elena,2012,968694
+Santa Elena,2013,1088694
+Santa Elena,2014,1218694
+Santo Domingo De Los Tsachilas,2001,368014
+Santo Domingo De Los Tsachilas,2002,378014
+Santo Domingo De Los Tsachilas,2003,398014
+Santo Domingo De Los Tsachilas,2004,428014
+Santo Domingo De Los Tsachilas,2005,468014
+Santo Domingo De Los Tsachilas,2006,518014
+Santo Domingo De Los Tsachilas,2007,578014
+Santo Domingo De Los Tsachilas,2008,648014
+Santo Domingo De Los Tsachilas,2009,728014
+Santo Domingo De Los Tsachilas,2010,818014
+Santo Domingo De Los Tsachilas,2011,918014
+Santo Domingo De Los Tsachilas,2012,1028014
+Santo Domingo De Los Tsachilas,2013,1148014
+Santo Domingo De Los Tsachilas,2014,1278014
+Sucumbios,2001,176473
+Sucumbios,2002,186473
+Sucumbios,2003,206473
+Sucumbios,2004,236473
+Sucumbios,2005,276473
+Sucumbios,2006,326473
+Sucumbios,2007,386473
+Sucumbios,2008,456473
+Sucumbios,2009,536473
+Sucumbios,2010,626473
+Sucumbios,2011,726473
+Sucumbios,2012,836473
+Sucumbios,2013,956473
+Sucumbios,2014,1086473
+Tungurahua,2001,504584
+Tungurahua,2002,514584
+Tungurahua,2003,534584
+Tungurahua,2004,564584
+Tungurahua,2005,604584
+Tungurahua,2006,654584
+Tungurahua,2007,714584
+Tungurahua,2008,784584
+Tungurahua,2009,864584
+Tungurahua,2010,954584
+Tungurahua,2011,1054584
+Tungurahua,2012,1164584
+Tungurahua,2013,1284584
+Tungurahua,2014,1414584
+Zamora Chinchipe,2001,91377
+Zamora Chinchipe,2002,101377
+Zamora Chinchipe,2003,121377
+Zamora Chinchipe,2004,151377
+Zamora Chinchipe,2005,191377
+Zamora Chinchipe,2006,241377
+Zamora Chinchipe,2007,301377
+Zamora Chinchipe,2008,371377
+Zamora Chinchipe,2009,451377
+Zamora Chinchipe,2010,541377
+Zamora Chinchipe,2011,641377
+Zamora Chinchipe,2012,751377
+Zamora Chinchipe,2013,871377
+Zamora Chinchipe,2014,1001377
+Carchi,2001,164525
+Carchi,2002,174525
+Carchi,2003,194525
+Carchi,2004,224525
+Carchi,2005,264525
+Carchi,2006,314525
+Carchi,2007,374525
+Carchi,2008,444525
+Carchi,2009,524525
+Carchi,2010,614525
+Carchi,2011,714525
+Carchi,2012,824525
+Carchi,2013,944525
+Carchi,2014,1074525
